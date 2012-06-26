@@ -12,13 +12,13 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 		/*
 		switch($info->getCheckFormapagamento()){
 			case "boleto":
-				$formaPagamento = "Boleto Banc�rio";
+				$formaPagamento = "Boleto Bancário";
 				break;
 			case "cartaodecredito":
-				$formaPagamento = "Cart�o de Cr�dito";
+				$formaPagamento = "Cartão de Crédito";
 				break;
 			case "tef":
-				$formaPagamento = "Cart�o de D�bito - TEF";
+				$formaPagamento = "Cartão de Débito - TEF";
 				break;
 		}
 		/*$array = array(
@@ -30,7 +30,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 		if($info->getCheckFormapagamento() == 'boleto'){
 			/*$array = array(
 				#Mage::helper('payment')->__('Forma de Pagamento') => $info->getCheckFormapagamento()
-				Mage::helper('payment')->__('Forma de Pagamento') => utf8_encode("Boleto Banc�rio"),
+				Mage::helper('payment')->__('Forma de Pagamento') => utf8_encode("Boleto Bancário"),
 				Mage::helper('payment')->__('Segunda Via') => $info->getCheckBoletourl()
 			);*/
 			
@@ -54,7 +54,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 					</tr>
 					</tbody>
 					</table>");
-		#	echo utf8_encode("<a href = '{$info->getCheckBoletourl()}'>Imprimir 2� via</a>");
+		#	echo utf8_encode("<a href = '{$info->getCheckBoletourl()}'>Imprimir 2 via</a>");
 			
 		}elseif($info->getCheckFormapagamento() == 'cartaodecredito'){
 			$checkBandCC = $info->getCheckCartaobandeira();
@@ -75,27 +75,27 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 			}
 			switch($info->getCheckCartaobandeira()){
 				case "cartao_amex":
-					$cartao = "Cart�o American Express";
+					$cartao = "Cartão American Express";
 					break;
 				case "cartao_elo":
-					$cartao = "Cart�o Elo";
+					$cartao = "Cartão Elo";
 					break;
 				case "cartao_master":
-					$cartao = "Cart�o Master";
+					$cartao = "Cartão Master";
 					break;
 				case "cartao_diners":
-					$cartao = "Cart�o Diners";
+					$cartao = "Cartão Diners";
 					break;
 				case "cartao_visa":
-					$cartao = "Cart�o Visa";
+					$cartao = "Cartão Visa";
 					break;					
 			}
 			$array = array(
-				utf8_encode(Mage::helper('payment')->__('Bandeira do Cart�o')) => utf8_encode($cartao),
+				utf8_encode(Mage::helper('payment')->__('Bandeira do Cartão')) => utf8_encode($cartao),
 				Mage::helper('payment')->__('Nome') => $info->getCheckNome(),
 				Mage::helper('payment')->__('Cpf') => $info->getCheckCpf(),
-				utf8_encode(Mage::helper('payment')->__('Numero do Cart�o')) => $numCart,
-				#Mage::helper('payment')->__('Expiracao M�s') => $info->getCheckExpiracaomes(),
+				utf8_encode(Mage::helper('payment')->__('Numero do Cartão')) => $numCart,
+				#Mage::helper('payment')->__('Expiracao Mês') => $info->getCheckExpiracaomes(),
 				#Mage::helper('payment')->__('Check Expiracaoano') => $info->getCheckExpiracaoano(),
 				
 				#Mage::helper('payment')->__('Check Codseguranca') => $info->getCheckCodseguranca()
@@ -117,8 +117,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 			Mage::helper('payment')->__('Check Expiracaoano') => $info->getCheckExpiracaoano(),
 			Mage::helper('payment')->__('Check Codseguranca') => $info->getCheckCodseguranca(),
 			Mage::helper('payment')->__('Check Tefbandeira') => $info->getCheckTefbandeira(),*/
-		$transport->addData($array
-		);
+		$transport->addData($array);
 		return $transport;
 	}
 }
