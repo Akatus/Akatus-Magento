@@ -15,7 +15,7 @@
 
 </div>
 
-<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:block;">
+<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
 	
 	<?php
 	
@@ -42,12 +42,9 @@
 		$err = curl_error($curl);
 		curl_close($curl);
 		
-                if(!empty($err))
-                    Mage::throwException($err);
-                
 		$data = xml2array($ret);
 	
-		$meios = $data["resposta"]["meios_de_pagamento"]["meio_de_pagamento"];
+		$meios=$data["resposta"]["meios_de_pagamento"]["meio_de_pagamento"];
 	
 		foreach($meios as $meiopagamento){
 		
@@ -153,7 +150,7 @@
 										</select>
 										
 										<select type="text" title="<?php echo $this->__('Check Expiracaoano:') ?>" value="" maxlength="2" size="1" name="payment[check_expiracaoano]" id="<?php echo $_code ?>_check_expiracaoano" class="input-text required-entry" style="width:50px; float:left; ">
-								<option value="">Ano</option>											
+											<option value="">Ano</option>											
 											<option value="12">12</option>
 											<option value="13">13</option>
 											<option value="14">14</option>
@@ -161,9 +158,10 @@
 											<option value="16">16</option>
 											<option value="17">17</option>
 											<option value="18">18</option>
-											<option value="19">19</option>
+											<!--<option value="19">19</option>
 											<option value="20">20</option>
-											<option value="21">21</option>
+											<option value="21">21</option>!-->
+											
 										</select>
 										
 									</td>
@@ -272,6 +270,45 @@
 	}
 
 	var VALOR_COMPRA;
+	/*
+	function Parcelamento(){
+		/******************************************************************************************
+		* INDICE DE PARCELAMENTO FICARA FIXADO EM 1.99% AO MÊS A PARTIR DA SEGUNDA PARCELA
+		******************************************************************************************
+		juros_mensal=1.99;
+		/******************************************************************************************
+		<?php 
+		$totals = Mage::getSingleton('checkout/cart')->getQuote()->getTotals();
+		$subtotal = $totals["grand_total"]->getValue();
+		echo "VALOR_COMPRA=$subtotal;\n";
+		?>
+		parcelamento= new Array();
+		<?php 
+		foreach($bandeiras_CC as $bandeira){
+		?>
+		parcelamento['<?php echo $bandeira["codigo"]["value"]; ?>']=<?php echo $bandeira["parcelas"]["value"]; ?>;
+		<?php
+		}
+		?>
+
+		num_parcelas=parcelamento[document.getElementById('akatus_check_cartaobandeira').value];
+		slParcelamento=document.getElementById('akatus_check_parcelamento');	
+	removeOpcoes(slParcelamento);
+		for(i=1;i<=num_parcelas;i++){
+			var opt = document.createElement('option');
+
+			juros_periodo=((i-1)*juros_mensal)/100;
+
+			valor_total=VALOR_COMPRA+(juros_periodo*VALOR_COMPRA);
+
+			parcela=valor_total/i;
+
+	    	opt.text = i + 'x fixas de '+ formatarNumero(parcela) + '    Total:'+ formatarNumero(valor_total);
+	    	opt.value= i;
+			slParcelamento.add(opt,null);
+		}
+	}*/
+
 	function formatarNumero (rnum) {
 		   return "R$ "+ formatamoeda(Math.round(rnum*Math.pow(10,2))/Math.pow(10,2));
 	}

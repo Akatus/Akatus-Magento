@@ -434,7 +434,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     	
     		
     		#pega todos os itens do pedido para enviar ao gateway
-			$items = $order->getAllItems();
+			$items = $order->getAllVisibleItems();
 			$xml .= '
 			<!-- Produtos -->
 			<produtos>';
