@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- 
+<config>
+    <modules>
+        <Akatus_Akatus>
+            <active>true</active>
+            <codePool>local</codePool>
+        </Akatus_Akatus>
+    </modules>
+</config>
+-->
+<config>
+    <modules>
+        <Akatus_Akatus>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Mage_Payment/>
+            </depends>
+        </Akatus_Akatus>               
+    </modules>
+</config>
