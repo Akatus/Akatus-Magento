@@ -258,23 +258,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                         
                                                                         
                                                                         ?>
-									<td>
-										<label>
-											<select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
-												<?php 												
-												$juros = 1.99;
-												$precoTotal = Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal();												
-												for($i = 1; $i <= 12; $i++){
-													$jurosPeriodo = (($i - 1) * $juros) / 100;
-													$preco = $precoTotal + ($precoTotal * $jurosPeriodo);
-													$parcela = number_format($preco / $i,2,',','');
-													$preco = number_format($preco,2,',','');
-													echo "<option value = '{$i}'>{$i}x fixas de R$ {$parcela}    Total: R$ {$preco}</option>";												
-												}												
-												?>
-											</select>
-										</label>
-									</td>
+									
 								</tr>
 							</tbody>
 						</table>
