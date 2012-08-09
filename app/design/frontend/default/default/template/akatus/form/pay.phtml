@@ -182,33 +182,24 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                         <?
                                                                         
                                                                         $jsonUrl = "https://www.akatus.com/api/v1/parcelamento/simulacao.json?email=".$this->getMethod()->getConfigData('email_gateway')."&amount=".Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()."&payment_method=cartao_master&api_key=".$this->getMethod()->getConfigData('api_key');
-                                                                        echo $jsonUrl;
                                                                         
-                                                                        #$url = 'https://dev.akatus.com/api/v1/meios-de-pagamento.xml';
-                                                                        $curl2 = curl_init($jsonUrl);
-                                                                        //curl_setopt($curl2, CURLOPT_URL,$jsonUrl);
+                                                                        
+                                                                        $curl2 = curl_init($jsonUrl);                                                                        
                                                                         curl_setopt($curl2, CURLOPT_SSL_VERIFYPEER, false);
-                                                                        //curl_setopt($curl2, CURLOPT_USERAGENT, "Mozilla/4.0");
                                                                         curl_setopt($curl2, CURLOPT_POST, false);
                                                                         curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);
                                                                         $ret = curl_exec($curl2);
                                                                         $err = curl_error($curl2);
                                                                         curl_close($curl2);
-                                                                         
-                                                                        
-                                                                        
                                                                         
                                                                         $parcelamentos = json_decode($ret, true);
-                                                                        //print_r($parcelamentos);
-                                                                        
+                                                                       
                                                                         $juros1 =  str_replace("% ao mês","", $parcelamentos["resposta"]["descricao"]);
                                                                         $juros = str_replace(",",".",$juros1);
                                                                         $parcelasAssumidas = $parcelamentos["resposta"]["parcelas_assumidas"];
                                                                         
                                                                         
                                                                         if(!empty($parcelasAssumidas)){
-                                                                            
-                                                                            //print_r($parcelamentos["resposta"]["parcelas"]);
                                                                                 
                                                                                 ?>
                                                                                 <td>
@@ -218,10 +209,6 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                                                    
                                                                                                    	$i =1;										
                                                                                                     foreach($parcelamentos["resposta"]["parcelas"] as $parcelas){
-                                                                                                    
-                                                                                                        ///echo $parcelas["total"];
-                                                                                                        
-                                                                                                        
                                                                                                         
                                                                                                             $jurosPeriodo = (($i - 1) * $juros) / 100;
                                                                                                             $preco = $parcelas["total"] + ($parcelas["total"] * $jurosPeriodo);
@@ -229,7 +216,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                                                             $preco = number_format($preco,2,',','.');
                                                                                                             echo "<option value = '{$i}'>{$i}x fixas de R$ {$parcela}    Total: R$ {$preco} (".$juros1."% a.m)</option>";												
                                                                                                             $i++;
-                                                                                                         
+                                                                                                        
                                                                                                          
                                                                                                     }
                                                                                                    
@@ -245,16 +232,25 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                             
                                                                             
                                                                             
+                                                                        } else {
+                                                                            
+                                                                            ?>
+                                                                            <td>
+                                                                                    <label>
+                                                                                            <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
+                                                                                                  <option value = '1'>1x fixa de R$ <?= number_format(Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal(), 2, ",", ".")?>    Total: R$<?=number_format(Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal(),2,",","."); ?> </option>";												
+                                                                                                            
+                                                                                                         
+                                                                                                         
+                                                                                                   
+                                                                                            </select>
+                                                                                    </label>
+                                                                                </td>
+                                                                        
+                                                                            <?
+                                                                            
+                                                                            
                                                                         }
-                                                                        
-                                                                        
-                                                                        
-                                                                         
-                                                                        //print_r($taxa);
-                                                                        //print_r($parcelasAssumidas);
-                                                                        
-                                                                        
-                                                                       // print_r($parcelamentos);
                                                                         
                                                                         
                                                                         ?>
