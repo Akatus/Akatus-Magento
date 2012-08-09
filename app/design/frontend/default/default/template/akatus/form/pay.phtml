@@ -212,7 +212,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                                                         
                                                                                                             $jurosPeriodo = (($i - 1) * $juros) / 100;
                                                                                                             $preco = $parcelas["total"] + ($parcelas["total"] * $jurosPeriodo);
-                                                                                                            $parcela = $parcelas["valor"];
+                                                                                                            $parcela = number_format($parcelas["valor"], 2, ",", ".");
                                                                                                             $preco = number_format($preco,2,',','.');
                                                                                                             echo "<option value = '{$i}'>{$i}x fixas de R$ {$parcela}    Total: R$ {$preco} (".$juros1."% a.m)</option>";												
                                                                                                             $i++;
