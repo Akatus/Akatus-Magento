@@ -183,6 +183,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                         
                                                                         $jsonUrl = "https://www.akatus.com/api/v1/parcelamento/simulacao.json?email=".$this->getMethod()->getConfigData('email_gateway')."&amount=".Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()."&payment_method=cartao_master&api_key=".$this->getMethod()->getConfigData('api_key');
                                                                         
+                                                                        //echo $jsonUrl;
                                                                         
                                                                         $curl2 = curl_init($jsonUrl);                                                                        
                                                                         curl_setopt($curl2, CURLOPT_SSL_VERIFYPEER, false);
@@ -209,12 +210,18 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                                                    
                                                                                                    	$i =1;										
                                                                                                     foreach($parcelamentos["resposta"]["parcelas"] as $parcelas){
-                                                                                                        
-                                                                                                            $jurosPeriodo = (($i - 1) * $juros) / 100;
-                                                                                                            $preco = $parcelas["total"] + ($parcelas["total"] * $jurosPeriodo);
-                                                                                                            $parcela = number_format($parcelas["valor"], 2, ",", ".");
-                                                                                                            $preco = number_format($preco,2,',','.');
-                                                                                                            echo "<option value = '{$i}'>{$i}x fixas de R$ {$parcela}    Total: R$ {$preco} (".$juros1."% a.m)</option>";												
+                                                                                                                                                                                                                    
+                                                                                                            if($i > $parcelamentos["resposta"]["parcelas_assumidas"]){
+                                                                                                                $jurosdisclaimer = "(".$juros1."% a.m)";
+                                                                                                            } else {
+                                                                                                                $jurosdisclaimer = " sem juros";
+                                                                                                            }
+                                                                                                            
+                                                                                                            $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
+                                                                                                            $valorTotalFinal   = number_format($parcelas['total'], 2, ",", ".");
+                                                                                                                                                                                                                        
+                                                                                                            echo "<option value = '{$i}'>{$i}x fixas de R$ {$valorParcelaFinal}    Total: R$ {$valorTotalFinal} ".$jurosdisclaimer."</option>";												
+                                                                                                            
                                                                                                             $i++;
                                                                                                         
                                                                                                          
