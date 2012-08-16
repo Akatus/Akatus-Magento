@@ -47,21 +47,6 @@ $query = "ALTER TABLE `".$prefix."sales_flat_order_payment`
 				 ADD `check_boletourl` VARCHAR(200) NOT NULL";
 
 
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_no', 'varchar(20) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_date', 'varchar(20) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_cartaobandeira', 'varchar(20) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_nome', 'varchar(200) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_cpf', 'varchar(30) NOT NULL');$
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_numerocartao', 'varchar(20) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_expiracaomes', 'varchar(4) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_expiracaoano', 'varchar(4) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_codseguranca', 'varchar(5) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_parcelamento', 'varchar(10) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_tefbandeira', 'varchar(40) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_formapagamento', 'varchar(40) NOT NULL');
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'check_boletourl', 'varchar(200) NOT NULL');
-
-
 
 $installer->run($query);
 
