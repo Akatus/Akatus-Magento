@@ -849,4 +849,3 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 	 
 }
 ?>
-

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 {
 	protected function _prepareSpecificInformation($transport = null)
