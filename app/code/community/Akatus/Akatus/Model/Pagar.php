@@ -472,7 +472,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			<produtos>';
                         
                         $totalItens= sizeof($items);
-                        $discountParcialPerProduct = abs(number_format($order->discount_amount/$totalItens,'2','',''));
+                       
                         
                         $valorTotal = '';
                         $freteTotal = '';
@@ -484,23 +484,16 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                         
 			foreach ($items as $itemId => $item)
 			{
-				$preco= number_format($item->getPrice(),'2','','');
+				//$preco= number_format($item->getPrice(),'2','','');
 
-				$sss .='
-				<produto>
-					<codigo>'.str_replace("-","",$item->getSku()).'</codigo>
-					<descricao>'.$item->getName().'</descricao>
-					<quantidade>'.$item->getQtyToInvoice().'</quantidade>
-					<preco>'.number_format($item->getPrice(),'2','','').'</preco>
-					<peso>'.number_format($item->getWeight(),'3','','').'</peso>
-					<frete>'.number_format((($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice()),'2','','').'</frete>
-					<desconto>'.abs(number_format($discountParcialPerProduct/$item->getQtyToInvoice(),'2','','' )).'</desconto>
-				</produto>'; 
+                            
+                                $preco = $item->getPrice();
+				
                                 
-                        $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),'2','','');
-                        $freteTotal      += number_format((($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice()),'2','','');
+                        $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),2,'.','');
+                        $freteTotal      += round(($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice(), 2);
                         $quantidadeTotal += $item->getQtyToInvoice();
-                        $pesoTotal       += number_format($item->getWeight(),'2','','');
+                        $pesoTotal       += d($item->getWeight());
                         $descricao        = $item->getName();
                         $cod              = str_replace("-","",$item->getSku());
                                 
@@ -516,11 +509,13 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                                 Mage::Log('grand_amount:');
                         }
                         
-                        $descontoTotal = abs(number_format($order->discount_amount,'2','',''));
+                        $descontoTotal = abs(number_format($order->discount_amount,'2','.',''));
                         
                         $_totalData =$order->getData();
-                        $_grand = $_totalData['grand_total'];
-                        
+                        $_grand = number_format($_totalData['grand_total'],2,'.');
+                        Mage::Log('grand_amount:'.$_grand);
+                        Mage::Log('precototal:'.$valorTotal);
+                                             
                         $xml .='
 				<produto>
 					<codigo>'.$cod.'</codigo>
@@ -574,17 +569,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			}
 			
 			
-			$xmlOld.='
-			<!-- Transacao -->
-			<transacao>
-				'.$xml_forma_pagamento.'
-				<!-- Dados do checkout -->
-				<moeda>BRL</moeda>
-				<frete_total>'.abs(number_format($order->base_shipping_incl_tax + $order->shipping_discount_amount,'2','','')).'</frete_total> 
-				<desconto_total>000</desconto_total>
-				<peso_total>0</peso_total> 
-				<referencia>'.$orderId.'</referencia>				
-			</transacao>';
+			
                         
                         $xml.='
 			<!-- Transacao -->
@@ -705,6 +690,9 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					$payment->setCheckBoletourl($url_destino);
 					$payment->save();	
 					
+					$transacaoId=$data["resposta"]["transacao"]["value"];
+					$this->SalvaIdTransacao($orderId,$transacaoId);
+					
 					#monta a mensagem
 					#$msg="<img src = 
 					$msg='Transação realizada com sucesso. Clique na url abaixo para imprimir seu boleto.<br/>';
@@ -719,6 +707,9 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					$url_destino='https://www.akatus.com/tef/';
 					$str = $data['resposta']['transacao']['value'];
 					$url_destino.=base64_encode($str).'.html';
+					
+					$transacaoId=$data["resposta"]["transacao"]["value"];
+					$this->SalvaIdTransacao($orderId,$transacaoId);
 					
 					#monta a mensagem
 					$msg='Transação realizada com sucesso. Clique na url abaixo e você será redirecionado para seu banco.<br/>';
