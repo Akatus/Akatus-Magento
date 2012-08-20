@@ -522,9 +522,9 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					<descricao>'.$descricao.'</descricao>
 					<quantidade>1</quantidade>
 					<preco>'.$_grand.'</preco>
-					<peso>'.$pesoTotal.'</peso>
-					<frete>'.$freteTotal.'</frete>
-					<desconto>'.$descontoTotal.'</desconto>
+					<peso>000</peso>
+					<frete>000</frete>
+					<desconto>000</desconto>
 				</produto>';
                         
 			$xml.='</produtos>';
