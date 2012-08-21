@@ -493,7 +493,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                         $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),2,'.','');
                         $freteTotal      += round(($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice(), 2);
                         $quantidadeTotal += $item->getQtyToInvoice();
-                        $pesoTotal       += d($item->getWeight());
+                        $pesoTotal       += $item->getWeight();
                         $descricao        = $item->getName();
                         $cod              = str_replace("-","",$item->getSku());
                                 
@@ -512,9 +512,14 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                         $descontoTotal = abs(number_format($order->discount_amount,'2','.',''));
                         
                         $_totalData =$order->getData();
-                        $_grand = number_format($_totalData['grand_total'],2,'.');
+                        $_grand = number_format($_totalData['grand_total'],2,'.', '');
                         Mage::Log('grand_amount:'.$_grand);
                         Mage::Log('precototal:'.$valorTotal);
+                        
+                       if(empty($_grand)){
+                        	$_grand = number_format($valorTotal-$descontoTotal, 2, '.', '');
+                        }
+                        
                                              
                         $xml .='
 				<produto>
@@ -598,7 +603,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 		 * Faz o envio do XML para o gateway de pagamento.
 		 */
 		$status="";
-		$orderId = $payment->getId();
+		$orderId = $payment->getParentId();
 		
 		$url = 'https://www.akatus.com/api/v1/carrinho.xml';
 		#$url = 'https://dev.akatus.com/api/v1/carrinho.xml';
@@ -733,7 +738,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 	{
 		//Salva as informaces do pedido para Validacao com o NIP
 		$db = Mage::getSingleton('core/resource')->getConnection('core_write');	
-		//$db->query("DELETE FROM akatus_transacoes WHERE idpedido='".$orderId."'");
+		$db->query("DELETE FROM akatus_transacoes WHERE idpedido='".$orderId."'");
 		$db->query("INSERT into akatus_transacoes (idpedido,codtransacao) VALUES('".$orderId."','".$transacaoId."')");
                 
 	}
