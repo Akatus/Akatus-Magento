@@ -520,11 +520,12 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                         	$_grand = number_format($valorTotal-$descontoTotal, 2, '.', '');
                         }
                         
+                        $nomedaloja = Mage::app()->getStore()->getName();
                                              
                         $xml .='
 				<produto>
 					<codigo>'.$cod.'</codigo>
-					<descricao>'.$descricao.'</descricao>
+					<descricao>Compra realizada na loja virtual "'.$nomedaloja.'"</descricao>
 					<quantidade>1</quantidade>
 					<preco>'.$_grand.'</preco>
 					<peso>000</peso>
