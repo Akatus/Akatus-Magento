@@ -179,7 +179,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 								<tr>
 									<td class = 'label'>Parcelas:</td>
                                                                         
-                                                                        <?
+                                                                        <?php
                                                                         
                                                                         $jsonUrl = "https://www.akatus.com/api/v1/parcelamento/simulacao.json?email=".$this->getMethod()->getConfigData('email_gateway')."&amount=".Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()."&payment_method=cartao_master&api_key=".$this->getMethod()->getConfigData('api_key');
                                                                         
@@ -196,7 +196,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                         $parcelamentos = json_decode($ret, true);
                                                                        
                                                                         $juros1 =  str_replace("% ao mês","", $parcelamentos["resposta"]["descricao"]);
-                                                                        $juros = str_replace(",",".",$juros1);
+                                                                        $juros  = str_replace(",",".",$juros1);
                                                                         $parcelasAssumidas = $parcelamentos["resposta"]["parcelas_assumidas"];
                                                                         
                                                                         
