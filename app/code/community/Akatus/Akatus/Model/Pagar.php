@@ -40,7 +40,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
         
         $valid = true;
         
-              
+
+        $telSoNumeros = eregi_replace('([^0-9])','',$tel);
         $size = strlen($tel);
         
         if($size == 10 || $size == 11){
@@ -61,6 +62,13 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
         
     }
     
+
+    function limpaTelefone($tel){
+        $return = eregi_replace('([^0-9])','',$tel);
+
+        return $return;
+    }
+
     
      function isCpfValid($cpf){
 			//Etapa 1: Cria um array com apenas os digitos numéricos, isso permite receber o cpf em diferentes formatos como "000.000.000-00", "00000000000", "000 000 000 00" etc...
@@ -359,7 +367,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     	if($formapagamento=="tef"){
     		if(empty($tefbandeira)){
     		$errorCode = 'invalid_data';
-    		$errorMsg = $this->_getHelper()->__('Campo de preenchimento obrigatório');
+    		$errorMsg = $this->_getHelper()->__('Escolha o banco pelo qual deseja realizar a tranferẽncia eletrônica (TEF)');
     
     		
     		#gera uma exception caso os campos de tef não forem preenchidos
@@ -427,15 +435,14 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			</recebedor>';
 			
 			$consumer_tel=$address->getData("telephone");
-			$consumer_tel= preg_replace("[^0-9]", "", $consumer_tel);
+			$consumer_tel= eregi_replace('([^0-9])','',$consumer_tel);
             $isValidTelephone = $this->isTelephoneValid($consumer_tel);
                         
             $xml.='
 			<!-- CLIENTE -->
 			<pagador>
 				<nome>'.$customer_nome.'</nome>
-				<email>'.$customer_email.'</email>
-				';
+				<email>'.$customer_email.'</email>';
 				/*
 				 * Bloco de endereço comentado conforme Solicitação.
 				<!-- ENDERECO OPCIONAL -->
@@ -460,8 +467,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 						<numero>'.$consumer_tel.'</numero>
 					</telefone>
 				</telefones>
-			</pagador>
-			';
+			</pagador>';
 			
     	
     		
@@ -471,8 +477,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			<!-- Produtos -->
 			<produtos>';
                         
-                        $totalItens= sizeof($items);
-                       
+                        $totalItens= sizeof($items);                    
                         
                         $valorTotal = '';
                         $freteTotal = '';
@@ -491,18 +496,35 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				
                                 
                         $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),2,'.','');
-                        $freteTotal      += round(($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice(), 2);
+                        $freteTotal      += round(($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice(), 2, '', '');
                         $quantidadeTotal += $item->getQtyToInvoice();
                         $pesoTotal       += $item->getWeight();
                         $descricao        = $item->getName();
                         $cod              = str_replace("-","",$item->getSku());
+
+                        $preco_item = number_format($item->getPrice(), 2, '', '');
+                        Mage::Log('produto>>preco: '.$preco_item);
+
+                        $peso_item = number_format($item->getWeight(), 2, '', '');
+                        Mage::Log('produto>>peso: '.$peso_item);
+
+                                $xml .='<produto>
+                                            <codigo>'.$cod.'</codigo>
+                                            <descricao>'.$item->getName().'</descricao>
+                                            <quantidade>'.$item->getQtyToInvoice().'</quantidade>
+                                            <preco>'.$preco_item.'</preco>
+                                            <peso>'.$peso_item.'</peso>
+                                            <frete>0</frete>
+                                            <desconto>0</desconto>
+                                        </produto>';
+
                                 
                                 Mage::Log('SKU:'.$item->getSku());
                                 Mage::Log('descricao(item->getName()):'.$item->getName());
                                 Mage::Log('quantidade (item->getQtyToInvoice()):'.$item->getQtyToInvoice());
                                 Mage::Log('preco (item->getPrice()):'.$item->getPrice());
                                 Mage::Log('peso (item->getWeight()):'.$item->getWeight());
-                                Mage::Log('frete:'.number_format((($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice()),'2','',''));
+                                Mage::Log('frete:'.number_format((($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice()), 2,'',''));
                                 Mage::Log('desconto (item->discount_amount):'.$item->discount_amount);
                                 Mage::Log('desconto (item->discount_percent):'.$item->discount_percent);
                                 Mage::Log('desconto carrinho (order->discount_amount):'.$order->discount_amount);
@@ -521,7 +543,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                         }
                         
                         $nomedaloja = Mage::app()->getStore()->getName();
-                                             
+                          /**
+
                         $xml .='
 				<produto>
 					<codigo>'.$cod.'</codigo>
@@ -532,7 +555,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					<frete>000</frete>
 					<desconto>000</desconto>
 				</produto>';
-                        
+                       **/ 
 			$xml.='</produtos>';
 			
 			
@@ -560,7 +583,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					<portador>
 						<nome>'.$nome.'</nome>
 						<cpf>'.$cpf.'</cpf>
-						<telefone>'.$address->getData("telephone").'</telefone>
+						<telefone>'.$this->limpaTelefone($address->getData("telephone")).'</telefone>
 					</portador>';
 			}
 			
@@ -574,18 +597,24 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					<meio_de_pagamento>'.$formapagamento.'</meio_de_pagamento>';
 			}
 			
+			$transacao_freteTotal = number_format($order->base_shipping_incl_tax, 2, '.', '');
+            Mage::Log('transacao>>frete:'.$transacao_freteTotal);
 			
-			
+            $transacao_descontoTotal = number_format($descontoTotal, 2, '.', '');
+            Mage::Log('transacao>>desconto: '.$transacao_descontoTotal); 
                         
+            $transacao_pesoTotal = number_format($pesoTotal, 2, '.', '');
+            Mage::Log('transacao>>peso: '.$transacao_pesoTotal); 
+
                         $xml.='
 			<!-- Transacao -->
 			<transacao>
 				'.$xml_forma_pagamento.'
 				<!-- Dados do checkout -->
 				<moeda>BRL</moeda>
-				<frete_total>'.$freteTotal.'</frete_total> 
-				<desconto_total>000</desconto_total>
-				<peso_total>'.$pesoTotal.'</peso_total> 
+				<frete>'.$transacao_freteTotal.'</frete> 
+				<desconto>'.$transacao_descontoTotal.'</desconto>
+				<peso_total>'.$transacao_pesoTotal.'</peso_total> 
 				<referencia>'.$orderId.'</referencia>				
 			</transacao>';
                         
