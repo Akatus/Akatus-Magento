@@ -22,7 +22,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     /**
      * Abaixo algumas flags qua vao determinar os recursos disponiveis e o comportamento
      * deste modulo
-     * @see todas as floags disponiveis in Mage_Payment_Model_Method_Abstract
+     * @see todas as flags disponiveis in Mage_Payment_Model_Method_Abstract
      */
      
     protected $_isGateway               = true;
@@ -34,7 +34,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     protected $_canUseInternal          = true;
     protected $_canUseCheckout          = true;
     protected $_canUseForMultishipping  = true;
-    protected $_canSaveCc = false;
+    protected $_canSaveCc               = false;
   
     function isTelephoneValid($tel){
         
@@ -676,7 +676,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 		if($data["resposta"]["status"]["value"]=="erro")
 		{
 			#exibe a mensagem de erro
-                        Mage::Log('Deu erro meu velho: '.$data["resposta"]["descricao"]["value"]);
+            Mage::Log('Um erro ocorreu na transação: '.$data["resposta"]["descricao"]["value"]);
 			Mage::throwException("Não foi possível realizar sua transação");
 			
 			#exibe a mensagem de erro
@@ -689,7 +689,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				//echo "Em análise";
 				//exit;			
 				//Salva no sistema o ID da transação
-                                Mage::Log('Veio Em Análise, passou o cartão, é setar o status e partir pro abraço.');
+                                Mage::Log('Em Análise, salvando o status...');
 				try{
 				$transacaoId=$data["resposta"]["transacao"]["value"];
 				$this->SalvaIdTransacao($orderId,$transacaoId);
@@ -752,12 +752,13 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					
 					Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
 				}	
+                
 			} else {
-	//			$info = $this->getInfoInstance();
-       //         $formapagamento=$info->getCheckFormapagamento();
+	              //$info = $this->getInfoInstance();
+                  //$formapagamento=$info->getCheckFormapagamento();
                   Mage::throwException("Pagamento não autorizado. Consulte sua operadora para maiores informações.");
                   //$msq = "Pagamento não autorizado. Consulte sua operadora para maiores informações.";              
-				//Mage::throwException("Cartão Recusado:".$data["resposta"]["status"]["value"]."<br />Forma de pagamento:".$formadepagamento);
+				  //Mage::throwException("Cartão Recusado:".$data["resposta"]["status"]["value"]."<br />Forma de pagamento:".$formadepagamento);
 			}
 		}
 		

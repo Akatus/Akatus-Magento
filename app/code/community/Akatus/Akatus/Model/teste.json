@@ -1,0 +1,60 @@
+ {
+  "carrinho": {
+    "recebedor": {
+      "api_key": "1FEBBDB4-3A0C-4E97-A637-00A438F59540",
+      "email": "akatus.magento@gmail.com"
+    },
+    "pagador": {
+      "nome": "Jose Antonio",
+      "email": "ze@antonio.com.br",
+      "enderecos": {
+        "endereco": {
+          "tipo": "entrega",
+          "logradouro": "Rua Labib Marrar",
+          "numero": "129",
+          "bairro": "Jardim Santa Cruz",
+          "cidade": "São Paulo",
+          "estado": "SP",
+          "pais": "BRA",
+          "cep": "04182-040"
+        }
+      },
+      "telefones": {
+        "telefone": {
+          "tipo": "residencial",
+          "numero": "1433019799"
+        }
+      }
+    },
+    "produtos": {
+      "produto": [
+        {
+          "codigo": "UFC1403",
+          "descricao": "Luva de box com ferradura dentro",
+          "quantidade": "1",
+          "preco": "148.99",
+          "peso": "8.5",
+          "frete": "16.45",
+          "desconto": "10.00"
+        },
+        {
+          "codigo": "UFC1403",
+          "descricao": "Luva de box com ferradura dentro",
+          "quantidade": "1",
+          "preco": "148.99",
+          "peso": "8.5",
+          "frete": "16.45",
+          "desconto": "10.00"
+        }
+      ]
+    },
+    "transacao": {
+      "desconto_total": "20.00",
+      "peso_total": "17.0",
+      "frete_total": "32.90",
+      "moeda": "BRL",
+      "referencia": "abc1234",
+      "meio_de_pagamento": "boleto"
+    }
+  }
+}
