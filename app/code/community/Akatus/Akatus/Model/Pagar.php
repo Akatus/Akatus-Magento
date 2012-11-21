@@ -443,6 +443,18 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			<pagador>
 				<nome>'.$customer_nome.'</nome>
 				<email>'.$customer_email.'</email>';
+
+                Mage::Log("logradouro: ".$address->getData("street"));
+                Mage::Log("numero:");
+                Mage::Log("complemento: ");
+                Mage::Log("bairro: ");
+                Mage::Log("cidade: ".$address->getData("city"));
+                Mage::Log("estado: ".$address->getData("region"));
+                Mage::Log("país: ".$address->getData("country_id"));
+                Mage::Log("cep: ".$address->getData("postcode"));    
+
+
+
 				/*
 				 * Bloco de endereço comentado conforme Solicitação.
 				<!-- ENDERECO OPCIONAL -->
@@ -455,7 +467,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 						<bairro></bairro>
 						<cidade>'.$address->getData("city").'</cidade>
 						<estado>'.$address->getData("region").'</estado>
-						<pais>'.$address->getData("country_id").'</pais>
+						<pais>BRA</pais>
 						<cep>'.$address->getData("postcode").'</cep>
 				   </endereco>
 				</enderecos>

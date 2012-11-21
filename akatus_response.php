@@ -104,6 +104,31 @@
           echo 'setStatus!';     
 		$order->save();
 		 echo 'saved!';
+
+		 if($order->canInvoice() && $StatusTransacao == "Aprovado") {
+
+		 	echo "Vamos criar a fatura";
+		    /**
+		     * Create invoice
+		     * The invoice will be in 'Pending' state
+		     */
+		    $invoiceId = Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), array());
+		 
+		    $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId($invoiceId);
+		 
+		    /**
+		     * Pay invoice
+		     * i.e. the invoice state is now changed to 'Paid'
+		     */
+		    $invoice->capture()->save();
+		} else {
+			echo "A fatura vai ficar pra próxima";
+		}
+
+
+
+
+
                
 	} else {
 			echo 'tokenip fumaça!!!';

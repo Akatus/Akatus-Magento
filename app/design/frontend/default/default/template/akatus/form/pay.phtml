@@ -47,16 +47,29 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                 
 		$data = xml2array($ret);
 	
-		$meios = $data["resposta"]["meios_de_pagamento"]["meio_de_pagamento"];
+//		$meios = $data["resposta"]["meios_de_pagamento"]["meio_de_pagamento"];
+		$meios = $data["resposta"]["meios_de_pagamento"];
+	
+		//var_dump($meios);
 	
 		foreach($meios as $meiopagamento){
+		//echo "meiodepagamento";
+		//var_dump($meiopagamento);
+		//echo "band";
+		//echo "<pre>"
+		//var_dump($meiopagamento["bandeira"]);
+		//echo "bandbands";
+		//print_r($meiopagamento["bandeiras"]["bandeira"]);
+		///echo "</pre>";
 		
 			if($meiopagamento["descricao"]["value"]=="Cartão de Crédito")
 			{
+			
+			
 				
 				echo "<li>
-					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
-					  <span>".$meiopagamento["descricao"]["value"].'</span>'; ?>
+					  <input onClick='ffCartaodeCredito();' type='radio' value='Cartão de Crédito' name='forma' id='forma'>
+					  <span>Cartão de Crédito</span>"; ?>
 					  
 					  <div style="display:none" id="cc" name="cc">   
 						
@@ -79,12 +92,16 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 										<div id = 'cc_bandeiras'>
 											<?php
 												$bandeiras_CC=array();
-												$bandeiras_CC=$meiopagamento["bandeiras"]["bandeira"];
-												$bandeiras=$meiopagamento["bandeiras"]["bandeira"];
-												$count = count($bandeiras);
+												$bandeiras_CC=$meiopagamento["bandeiras"];
+												$bandeiras=$meiopagamento["bandeiras"];
+												$count = sizeof($bandeiras["bandeira"]);
+												//var_dump($bandeiras);
+												//echo "sizeof".$count;
 												$i = 1;
-												foreach($bandeiras as $bandeira){ 
-													echo "<img id = 'cc_{$bandeira['codigo']['value']}' src = '".$this->getSkinUrl('cartoes/') . $bandeira["codigo"]["value"] . ".png' class = 'cc_inactive";
+												$k = 0;
+												for($k = 0; $k < $count; $k++){ 
+												//var_dump($bandeira[0]["codigo"]["value"]);
+													echo "<img id = 'cc_{$bandeiras['bandeira'][$k]['codigo']['value']}' src = '".$this->getSkinUrl('cartoes/') . $bandeiras["bandeira"][$k]["codigo"]["value"] . ".png' class = 'cc_inactive";
 													if($i == $count): echo " last"; endif;
 													//echo "' onclick = 'selectBandeira2(\"".$bandeira["codigo"]["value"]."\");'/>";
                                                                                                         echo "' onclick = 'selectBandeira2(this.id);'/>";
@@ -269,7 +286,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 		<?php
 			
-			}elseif ($meiopagamento["descricao"]["value"]=="TEF"){
+			}elseif ($meiopagamento["value"]=="TEF"){
 			
 				echo "<li>
 						<input onClick='ffTef();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
@@ -298,13 +315,13 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 						
 				</div>			
 			
-		<?php 
+		<?php //Boleto Bancário
 			
-			}else{
+			}elseif ($meiopagamento["value"]=="Boleto Bancário"){
 			
 				echo "<li>
 					  <input onClick='ffBoleto();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
-					  <span>".$meiopagamento["descricao"]["value"].'</span>';
+					  <span>".$meiopagamento["descricao"]["value"]."</span>";
 			
 			}
 		
