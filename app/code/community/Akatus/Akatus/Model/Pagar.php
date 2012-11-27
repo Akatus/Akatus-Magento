@@ -63,6 +63,137 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     }
     
 
+    function stringToUf($estado){
+        
+        $uf = "";
+
+        switch ($estado) {
+            case 'Acre':
+            case 'AC':
+                $uf = 'AC';
+                break;
+            case 'Alagoas':
+            case 'AL':
+                $uf = 'AL';
+                break;
+            case 'Amazonas':
+            case 'AM':
+                $uf = 'AM';
+                break;
+            case 'Amapá':
+            case 'Amapa':
+            case 'AP':
+                $uf = 'AP';
+                break;
+            case 'Bahia':
+            case 'BA':
+                $uf = 'BA';
+                break;
+            case 'Ceará':
+            case 'Ceara':
+            case 'CE':
+                $uf = 'CE';
+                break;
+            case 'Distrito Federal':
+            case 'DF':
+                $uf = 'DF';
+                break;
+            case 'Espírito Santo':
+            case 'Espirito Santo':
+            case 'ES':
+                $uf = 'ES';
+                break;
+            case 'Goiás':
+            case 'Goias':
+            case 'GO':
+                $uf = 'GO';
+                break;
+            case 'Maranhão':
+            case 'Maranhao':
+            case 'MA':
+                $uf = 'MA';
+                break;
+            case 'Minas Gerais':
+            case 'MG':
+                $uf = 'MG';
+                break;
+            case 'Mato Grosso do Sul':
+            case 'MS':
+                $uf = 'MS';
+                break;
+            case 'Mato Grosso':
+            case 'MT':
+                $uf = 'MT';
+                break;
+            case 'Pará':
+            case 'Para':
+            case 'PA':
+                $uf = 'PA';
+                break;
+            case 'Paraíba':
+            case 'Paraiba':
+            case 'PB':
+                $uf = 'PB';
+                break;
+            case 'Pernambuco':
+                $uf = 'PE';
+                break;
+            case 'Piauí':
+            case 'Piaui':
+            case 'PI':
+                $uf = 'PI';
+                break;
+            case 'Paraná':
+            case 'Parana':
+            case 'PR':
+                $uf = 'PR';
+                break;
+            case 'Rio de Janeiro':
+            case 'RJ':
+                $uf = 'RJ';
+                break;
+            case 'Rio Grande do Norte':
+            case 'RN':
+                $uf = 'RN';
+                break;
+            case 'Rio Grande do Sul':
+            case 'RS':
+                $uf = 'RS';
+                break;
+            case 'Roraima':
+            case 'RR':
+                $uf = 'RR';
+                break;
+            case 'Rondônia':
+            case 'Rondonia':
+            case 'RO':
+                $uf = 'RO';
+                break;
+            case 'Santa Catarina':
+            case 'SC':
+                $uf = 'SC';
+                break;
+            case 'Sergipe':
+            case 'SE':
+                $uf = 'SE';
+                break;
+            case 'São Paulo':
+            case 'SP':
+                $uf = 'SP';
+                break;
+            case 'Tocantins':
+            case 'TO':
+                $uf = 'TO';
+                break;
+            default:
+                $uf = "";
+                break;
+        }
+
+        return $uf;
+
+    }
+
     function limpaTelefone($tel){
         $return = eregi_replace('([^0-9])','',$tel);
 

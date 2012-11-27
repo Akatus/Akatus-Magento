@@ -286,7 +286,9 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 		<?php
 			
-			}elseif ($meiopagamento["value"]=="TEF"){
+			}
+
+			if ($meiopagamento["descricao"]["value"]=="TEF"){
 			
 				echo "<li>
 						<input onClick='ffTef();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
@@ -317,7 +319,10 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 		<?php //Boleto Bancário
 			
-			}elseif ($meiopagamento["value"]=="Boleto Bancário"){
+			}
+
+
+			if ($meiopagamento["descricao"]["value"]=="Boleto Bancário"){
 			
 				echo "<li>
 					  <input onClick='ffBoleto();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
