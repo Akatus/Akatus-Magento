@@ -47,15 +47,18 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                 
 		$data = xml2array($ret);
 	
-//		$meios = $data["resposta"]["meios_de_pagamento"]["meio_de_pagamento"];
-		$meios = $data["resposta"]["meios_de_pagamento"];
+		$meios = $data["resposta"]["meios_de_pagamento"]["meio_de_pagamento"];
+//		$meios = $data["resposta"]["meios_de_pagamento"];
 	
 		//var_dump($meios);
-	
+		
 		foreach($meios as $meiopagamento){
+
+			Mage::Log("meiopagamento[descricao][value] =".$meiopagamento["descricao"]["value"]);
+			Mage::Log("meiopagamento[value] =".$meiopagamento["value"]);
 		//echo "meiodepagamento";
-		//var_dump($meiopagamento);
-		//echo "band";
+		//var_dump($meiopagamento["descricao"]);
+		//echo "_______________-----------------------_______________--------------______________------------________________--------------_____________";
 		//echo "<pre>"
 		//var_dump($meiopagamento["bandeira"]);
 		//echo "bandbands";
