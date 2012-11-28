@@ -23,6 +23,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 		}
 		/*$array = array(
 			Mage::helper('payment')->__('Forma de Pagamento') => $formaPagamento
+			//Code correction
 		);*/
 
 		#var_dump($info);
@@ -30,7 +31,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 	if($info->getCheckFormapagamento() == 'boleto'){
 			$array = array(
 				Mage::helper('payment')->__('Forma de Pagamento') => $info->getCheckFormapagamento(),
-				Mage::helper('payment')->__('Forma de Pagamento') => utf8_encode("Boleto Bancário"),
+				Mage::helper('payment')->__('Forma de Pagamento') => "Boleto Bancário",
 				Mage::helper('payment')->__('Segunda Via') => $info->getCheckBoletourl()
 			);
 

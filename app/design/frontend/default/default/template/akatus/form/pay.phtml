@@ -56,15 +56,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 
 			Mage::Log("meiopagamento[descricao][value] =".$meiopagamento["descricao"]["value"]);
 			Mage::Log("meiopagamento[value] =".$meiopagamento["value"]);
-		//echo "meiodepagamento";
-		//var_dump($meiopagamento["descricao"]);
-		//echo "_______________-----------------------_______________--------------______________------------________________--------------_____________";
-		//echo "<pre>"
-		//var_dump($meiopagamento["bandeira"]);
-		//echo "bandbands";
-		//print_r($meiopagamento["bandeiras"]["bandeira"]);
-		///echo "</pre>";
-		
+	
 			if($meiopagamento["descricao"]["value"]=="Cartão de Crédito")
 			{
 			
@@ -233,8 +225,10 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                                                                                                                                                                     
                                                                                                             if($i > $parcelamentos["resposta"]["parcelas_assumidas"]){
                                                                                                                 $jurosdisclaimer = "(".$juros1."% a.m)";
-                                                                                                            } else {
+                                                                                                            } else if($parcelas['valor'] == $parcelas['total']){
                                                                                                                 $jurosdisclaimer = " sem juros";
+                                                                                                            } else{
+                                                                                                            	$jurosdisclaimer = " sem juros";
                                                                                                             }
                                                                                                             
                                                                                                             $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
