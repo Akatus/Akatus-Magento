@@ -558,8 +558,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     	
 		#configura o xml
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>
-		<carrinho>
-			<!-- LOJISTA-->
+		<carrinho>			
 			<recebedor>
 			<api_key>'.$this->getConfigData('api_key').'</api_key>
 			<email>'.$this->getConfigData('email_gateway').'</email>
@@ -570,39 +569,48 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
             $isValidTelephone = $this->isTelephoneValid($consumer_tel);
                         
             $xml.='
-			<!-- CLIENTE -->
 			<pagador>
 				<nome>'.$customer_nome.'</nome>
 				<email>'.$customer_email.'</email>';
 
-                Mage::Log("logradouro: ".$address->getData("street"));
-                Mage::Log("numero:");
-                Mage::Log("complemento: ");
-                Mage::Log("bairro: ");
-                Mage::Log("cidade: ".$address->getData("city"));
-                Mage::Log("estado: ".$address->getData("region"));
-                Mage::Log("país: ".$address->getData("country_id"));
-                Mage::Log("cep: ".$address->getData("postcode"));    
+            Mage::Log("logradouro: ".$address->getData("street"));
+            Mage::Log("numero:");
+            Mage::Log("complemento: ");
+            Mage::Log("bairro: ");
+            Mage::Log("cidade: ".$address->getData("city"));
+            Mage::Log("estado: ".$this->stringToUf($address->getData("region")));
+            Mage::Log("país: ".$address->getData("country_id"));
+            Mage::Log("cep: ".$address->getData("postcode"));    
+
+            $logradouro = $address->getData("street");
+            $numero = "0";
+            $complemento = "Não Informado";
+            $bairro = "Vide Logradouro";
+            
+            $mg_cidade = $address->getData("city");
+            $mg_estado = $this->stringToUf($address->getData("region"));
+            $mg_cep = $address->getData("postcode");
+
+            $cidade = empty($mg_cidade) ? "Não Informado" : $mg_cidade;
+            $estado = empty($mg_estado) ? "SP" : $mg_estado;
+            $cep    = empty($mg_cep) ? "12345678" : $mg_cep;
 
 
-
-				/*
-				 * Bloco de endereço comentado conforme Solicitação.
-				<!-- ENDERECO OPCIONAL -->
-				<enderecos>
+		
+			$xml .= '<enderecos>
 				<endereco>
 					<tipo>entrega</tipo>
-						<logradouro>'.$address->getData("street").'</logradouro>
-						<numero></numero>
-						<complemento></complemento>
-						<bairro></bairro>
-						<cidade>'.$address->getData("city").'</cidade>
-						<estado>'.$address->getData("region").'</estado>
+						<logradouro>'.$logradouro.'</logradouro>
+						<numero>'.$numero.'</numero>
+						<complemento>'.$complemento.'</complemento>
+						<bairro>'.$bairro.'</bairro>
+						<cidade>'.$cidade.'</cidade>
+						<estado>'.$estado.'</estado>
 						<pais>BRA</pais>
-						<cep>'.$address->getData("postcode").'</cep>
+						<cep>'.$cep.'</cep>
 				   </endereco>
-				</enderecos>
-				*/
+				</enderecos>';
+				
 			$xml.='
 				<telefones>
 					<telefone>
