@@ -28,7 +28,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 		</meios_de_pagamento>';	
 		
 		$url = 'https://www.akatus.com/api/v1/meios-de-pagamento.xml';
-		#$url = 'https://dev.akatus.com/api/v1/meios-de-pagamento.xml';
+		#$url = 'https://dev.akatus.com/api/v1/meios-de-pagamento.json';
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,$url);
 		#curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
@@ -46,25 +46,17 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                 //    Mage::throwException($err);
                 
 		$data = xml2array($ret);
-	
-		$meios = $data["resposta"]["meios_de_pagamento"]["meio_de_pagamento"];
-//		$meios = $data["resposta"]["meios_de_pagamento"];
-	
-		//var_dump($meios);
 		
-		foreach($meios as $meiopagamento){
-
-			Mage::Log("meiopagamento[descricao][value] =".$meiopagamento["descricao"]["value"]);
-			Mage::Log("meiopagamento[value] =".$meiopagamento["value"]);
+		$meios = $data["resposta"]["meios_de_pagamento"];
 	
+		foreach($meios as $meiopagamento){			
+		
 			if($meiopagamento["descricao"]["value"]=="Cartão de Crédito")
 			{
-			
-			
 				
 				echo "<li>
-					  <input onClick='ffCartaodeCredito();' type='radio' value='Cartão de Crédito' name='forma' id='forma'>
-					  <span>Cartão de Crédito</span>"; ?>
+					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
+					  <span>".$meiopagamento["descricao"]["value"].'</span>'; ?>
 					  
 					  <div style="display:none" id="cc" name="cc">   
 						
@@ -87,20 +79,20 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 										<div id = 'cc_bandeiras'>
 											<?php
 												$bandeiras_CC=array();
-												$bandeiras_CC=$meiopagamento["bandeiras"];
-												$bandeiras=$meiopagamento["bandeiras"];
-												$count = sizeof($bandeiras["bandeira"]);
-												//var_dump($bandeiras);
-												//echo "sizeof".$count;
+												$bandeiras_CC=$meiopagamento["bandeiras"]["bandeira"];
+												$bandeiras=$meiopagamento["bandeiras"]["bandeira"];
+												$count = count($bandeiras);
 												$i = 1;
-												$k = 0;
-												for($k = 0; $k < $count; $k++){ 
-												//var_dump($bandeira[0]["codigo"]["value"]);
-													echo "<img id = 'cc_{$bandeiras['bandeira'][$k]['codigo']['value']}' src = '".$this->getSkinUrl('cartoes/') . $bandeiras["bandeira"][$k]["codigo"]["value"] . ".png' class = 'cc_inactive";
+												//var_dump($meiopagamento);
+												//echo "<br /><br />meiopagamento[bandeira] = ".$meiopagamento["bandeira"];
+												//echo "<br /><br />meiopagamento[bandeiras][bandeira] = ".$meiopagamento["bandeiras"]["bandeira"];
+												
+												foreach($bandeiras as $bandeira){ 
+													
+													echo "<img id = 'cc_{$bandeira['codigo']['value']}' src = '".$this->getSkinUrl('cartoes/') . $bandeira["codigo"]["value"] . ".png' class = 'cc_inactive";
 													if($i == $count): echo " last"; endif;
 													//echo "' onclick = 'selectBandeira2(\"".$bandeira["codigo"]["value"]."\");'/>";
-                                                                                                        echo "' onclick = 'selectBandeira2(this.id);'/>";
-                                                                                                       
+                                                                                                        echo "' onclick = 'selectBandeira2(this.id);'/>";                                                                                                      
 													$i++;
 												}
 												echo "<br>* Não esqueça de selecionar a bandeira de seu cartão.";
@@ -225,10 +217,8 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                                                                                                                                                                     
                                                                                                             if($i > $parcelamentos["resposta"]["parcelas_assumidas"]){
                                                                                                                 $jurosdisclaimer = "(".$juros1."% a.m)";
-                                                                                                            } else if($parcelas['valor'] == $parcelas['total']){
+                                                                                                            } else {
                                                                                                                 $jurosdisclaimer = " sem juros";
-                                                                                                            } else{
-                                                                                                            	$jurosdisclaimer = " sem juros";
                                                                                                             }
                                                                                                             
                                                                                                             $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
@@ -283,9 +273,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 		<?php
 			
-			}
-
-			if ($meiopagamento["descricao"]["value"]=="TEF"){
+			}elseif ($meiopagamento["descricao"]["value"]=="TEF"){
 			
 				echo "<li>
 						<input onClick='ffTef();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
@@ -314,16 +302,13 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 						
 				</div>			
 			
-		<?php //Boleto Bancário
+		<?php 
 			
-			}
-
-
-			if ($meiopagamento["descricao"]["value"]=="Boleto Bancário"){
+			}else{
 			
 				echo "<li>
 					  <input onClick='ffBoleto();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
-					  <span>".$meiopagamento["descricao"]["value"]."</span>";
+					  <span>".$meiopagamento["descricao"]["value"].'</span>';
 			
 			}
 		
