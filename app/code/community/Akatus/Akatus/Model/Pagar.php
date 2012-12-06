@@ -540,10 +540,17 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 		#regata asa informacoes do cliente para montar o XMl
 		$customer = Mage::getSingleton('customer/session')->getCustomer();
 		$shippingId = $order->getShippingAddress()->getId();
-    	$address = Mage::getModel('sales/order_address')->load($shippingId);
-    	
+        $billingId = $order->getBillingAddress()->getId();
+
+        $customerAddressId = Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling();
+        if ($customerAddressId){
+           $address = Mage::getModel('customer/address')->load($customerAddressId);
+        } else {           
+           $address = Mage::getModel('sales/order_address')->load($billingId);              
+        }
 		
     	$customer_nome=$order->customer_firstname . " ".$order->customer_lastname;
+    
     	if($customer_nome==""){
     		$customer_nome=$customer->getName();
     	}
@@ -647,7 +654,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				
                                 
                         $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),2,'.','');
-                        $freteTotal      += round(($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice(), 2, '', '');
+                        $freteTotal      += round(($order->base_shipping_incl_tax/$order->total_item_count/$item->getQtyToInvoice()), 2, '', '');
                         $quantidadeTotal += $item->getQtyToInvoice();
                         $pesoTotal       += $item->getWeight();
                         $descricao        = $item->getName();
@@ -692,21 +699,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                        if(empty($_grand)){
                         	$_grand = number_format($valorTotal-$descontoTotal, 2, '.', '');
                         }
-                        
-                        $nomedaloja = Mage::app()->getStore()->getName();
-                          /**
-
-                        $xml .='
-				<produto>
-					<codigo>'.$cod.'</codigo>
-					<descricao>Compra realizada na loja virtual "'.$nomedaloja.'"</descricao>
-					<quantidade>1</quantidade>
-					<preco>'.$_grand.'</preco>
-					<peso>000</peso>
-					<frete>000</frete>
-					<desconto>000</desconto>
-				</produto>';
-                       **/ 
+                       
 			$xml.='</produtos>';
 			
 			
