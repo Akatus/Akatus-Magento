@@ -53,7 +53,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 		
 			if($meiopagamento["descricao"]["value"]=="Cartão de Crédito")
 			{
-				
+				Mage::Log("Mostrar Cartões");
 				echo "<li>
 					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
 					  <span>".$meiopagamento["descricao"]["value"].'</span>'; ?>
@@ -273,8 +273,10 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 		<?php
 			
-			}elseif ($meiopagamento["descricao"]["value"]=="TEF"){
-			
+			}
+
+			if($meiopagamento["descricao"]["value"]=="TEF"){
+			Mage::Log("Mostrar TEF");
 				echo "<li>
 						<input onClick='ffTef();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
 						<span>Cartao de Debito - ".$meiopagamento["descricao"]["value"]."</span>"; ?>
@@ -304,8 +306,12 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 		<?php 
 			
-			}else{
-			
+			}
+
+
+
+			if($meiopagamento["descricao"]["value"]=="boleto"){
+			Mage::Log("Mostrar boleto");
 				echo "<li>
 					  <input onClick='ffBoleto();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
 					  <span>".$meiopagamento["descricao"]["value"].'</span>';
