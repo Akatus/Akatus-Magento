@@ -41,7 +41,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
         $valid = true;
         
 
-        $telSoNumeros = eregi_replace('([^0-9])','',$tel);
+        $telSoNumeros = ereg_replace('([^0-9])','',$tel);
         $size = strlen($tel);
         
         if($size == 10 || $size == 11){
@@ -195,7 +195,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     }
 
     function limpaTelefone($tel){
-        $return = eregi_replace('([^0-9])','',$tel);
+        $return = ereg_replace('([^0-9])','',$tel);
 
         return $return;
     }
@@ -572,7 +572,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			</recebedor>';
 			
 			$consumer_tel=$address->getData("telephone");
-			$consumer_tel= eregi_replace('([^0-9])','',$consumer_tel);
+			$consumer_tel= ereg_replace('([^0-9])','',$consumer_tel);
             $isValidTelephone = $this->isTelephoneValid($consumer_tel);
                         
             $xml.='

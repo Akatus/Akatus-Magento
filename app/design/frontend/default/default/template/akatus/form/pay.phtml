@@ -18,16 +18,13 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:block;">
 	
 	<?php
-	
-	$xml='<?xml version="1.0" encoding="UTF-8"?>
-		<meios_de_pagamento>
-		<correntista>
-		<api_key>'.$this->getMethod()->getConfigData('api_key').'</api_key>
-		<email>'.$this->getMethod()->getConfigData('email_gateway').'</email>
-		</correntista>
-		</meios_de_pagamento>';	
+
 		
-		$url = 'https://www.akatus.com/api/v1/meios-de-pagamento.xml';
+		$json = array("meios_de_pagamento"=>array("correntista"=>array("api_key"=>$this->getMethod()->getConfigData('api_key'), 
+																		"email"=>$this->getMethod()->getConfigData('email_gateway'))));
+		$toJson = json_encode($json);
+
+		$url = 'https://www.akatus.com/api/v1/meios-de-pagamento.json';
 		#$url = 'https://dev.akatus.com/api/v1/meios-de-pagamento.json';
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,$url);
@@ -36,27 +33,24 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/4.0");
 		curl_setopt($curl, CURLOPT_POST, true);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $xml);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $toJson);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		$ret = curl_exec($curl);
-		$err = curl_error($curl);
+		$retJson = curl_exec($curl);
+		$errJson = curl_error($curl);
 		curl_close($curl);
 		
-                //if(!empty($err))
-                //    Mage::throwException($err);
-                
-		$data = xml2array($ret);
+		$retornoArray = json_decode($retJson);
 		
-		$meios = $data["resposta"]["meios_de_pagamento"];
-	
-		foreach($meios as $meiopagamento){			
-		
-			if($meiopagamento["descricao"]["value"]=="Cartão de Crédito")
+		$meios = $retornoArray->resposta->meios_de_pagamento;
+
+		foreach($meios as $meiopagamento){		
+
+		if($meiopagamento->descricao == "Cartão de Crédito")
 			{
 				Mage::Log("Mostrar Cartões");
 				echo "<li>
-					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
-					  <span>".$meiopagamento["descricao"]["value"].'</span>'; ?>
+					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
+					  <span>".$meiopagamento->descricao.'</span>'; ?>
 					  
 					  <div style="display:none" id="cc" name="cc">   
 						
@@ -78,22 +72,14 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 									<td colspan = "2">
 										<div id = 'cc_bandeiras'>
 											<?php
-												$bandeiras_CC=array();
-												$bandeiras_CC=$meiopagamento["bandeiras"]["bandeira"];
-												$bandeiras=$meiopagamento["bandeiras"]["bandeira"];
-												$count = count($bandeiras);
-												$i = 1;
-												//var_dump($meiopagamento);
-												//echo "<br /><br />meiopagamento[bandeira] = ".$meiopagamento["bandeira"];
-												//echo "<br /><br />meiopagamento[bandeiras][bandeira] = ".$meiopagamento["bandeiras"]["bandeira"];
 												
+												$bandeiras=$meiopagamento->bandeiras;
+
 												foreach($bandeiras as $bandeira){ 
 													
-													echo "<img id = 'cc_{$bandeira['codigo']['value']}' src = '".$this->getSkinUrl('cartoes/') . $bandeira["codigo"]["value"] . ".png' class = 'cc_inactive";
+													echo "<img id = 'cc_".$bandeira->codigo."' src = '".$this->getSkinUrl('cartoes/') . $bandeira->codigo.".png' class = 'cc_inactive";
 													if($i == $count): echo " last"; endif;
-													//echo "' onclick = 'selectBandeira2(\"".$bandeira["codigo"]["value"]."\");'/>";
-                                                                                                        echo "' onclick = 'selectBandeira2(this.id);'/>";                                                                                                      
-													$i++;
+													 echo "' onclick = 'selectBandeira2(this.id);'/>";                                                                                                     
 												}
 												echo "<br>* Não esqueça de selecionar a bandeira de seu cartão.";
 											?>
@@ -210,7 +196,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                                 <td>
                                                                                     <label>
                                                                                             <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
-                                                                                                    <?php 												
+                                                                                                    <?php 													
                                                                                                    
                                                                                                    	$i =1;										
                                                                                                     foreach($parcelamentos["resposta"]["parcelas"] as $parcelas){
@@ -223,7 +209,10 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                                                                                                             
                                                                                                             $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
                                                                                                             $valorTotalFinal   = number_format($parcelas['total'], 2, ",", ".");
-                                                                                                                                                                                                                        
+                                                                                                            
+                                                                                                            if($parcelas['valor'] < 5 && $jurosdisclaimer != " sem juros")
+                                                                                                            	continue;
+
                                                                                                             echo "<option value = '{$i}'>{$i}x fixas de R$ {$valorParcelaFinal}    Total: R$ {$valorTotalFinal} ".$jurosdisclaimer."</option>";												
                                                                                                             
                                                                                                             $i++;
@@ -273,13 +262,15 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 		<?php
 			
-			}
+			} 
 
-			if($meiopagamento["descricao"]["value"]=="TEF"){
+
+
+			if( $meiopagamento->descricao=="TEF"){
 			Mage::Log("Mostrar TEF");
 				echo "<li>
-						<input onClick='ffTef();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
-						<span>Cartao de Debito - ".$meiopagamento["descricao"]["value"]."</span>"; ?>
+						<input onClick='ffTef();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
+						<span>Cartao de Debito - ".$meiopagamento->descricao."</span>"; ?>
 				
 				<div style="display:none" id="tef" name="cc">       
 					
@@ -291,9 +282,9 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 									<label>
 										<select  title="<?php echo $this->__('Check Tefbandeira:') ?>" style="width:250px;" name="payment[check_tefbandeira]" id="<?php echo $_code ?>_check_tefbandeira" class="input-text required-entry">
 										<?php 
-										$bandeiras=($meiopagamento["bandeiras"]["bandeira"]);
+										$bandeiras=($meiopagamento->bandeiras);
 										foreach($bandeiras as $bandeira){ ?>
-										  <option value="<?php echo $bandeira["codigo"]["value"]; ?>"><?php echo $bandeira["descricao"]["value"]; ?></option>
+										  <option value="<?php echo $bandeira->codigo; ?>"><?php echo $bandeira->descricao; ?></option>
 										<?php } ?>
 										</select>
 									</label>
@@ -306,21 +297,21 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 		<?php 
 			
-			}
+			} 
 
 
 
-			if($meiopagamento["descricao"]["value"]=="boleto"){
+			if($meiopagamento->descricao=="Boleto Bancário"){
 			Mage::Log("Mostrar boleto");
 				echo "<li>
-					  <input onClick='ffBoleto();' type='radio' value='".$meiopagamento["descricao"]["value"]."' name='forma' id='forma'>
-					  <span>".$meiopagamento["descricao"]["value"].'</span>';
+					  <input onClick='ffBoleto();' type='radio' value='boleto' name='forma' id='forma'>
+					  <span>".$meiopagamento->descricao.'</span>';
 			
-			}
+			} 
 		
 			echo "</li>";
 	
-		}
+		}/// fim do foreach
 	
 	
 	?>	   
