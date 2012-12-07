@@ -654,7 +654,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				
                                 
                         $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),2,'.','');
-                        $freteTotal      += round(($order->base_shipping_incl_tax/$order->total_item_count/$item->getQtyToInvoice()), 2, '', '');
+                        $freteTotal      += round( ($order->base_shipping_incl_tax/$order->total_item_count/$item->getQtyToInvoice()), 2, '');
                         $quantidadeTotal += $item->getQtyToInvoice();
                         $pesoTotal       += $item->getWeight();
                         $descricao        = $item->getName();

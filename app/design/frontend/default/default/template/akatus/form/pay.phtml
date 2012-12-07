@@ -272,7 +272,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 						<input onClick='ffTef();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
 						<span>Cartao de Debito - ".$meiopagamento->descricao."</span>"; ?>
 				
-				<div style="display:none" id="tef" name="cc">       
+				<div style="display:none" id="tef" name="tef">       
 					
 					<table id="tablePay" cellspacing="5" style = 'margin-top:10px; '>
 						<tbody>
@@ -282,7 +282,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 									<label>
 										<select  title="<?php echo $this->__('Check Tefbandeira:') ?>" style="width:250px;" name="payment[check_tefbandeira]" id="<?php echo $_code ?>_check_tefbandeira" class="input-text required-entry">
 										<?php 
-										$bandeiras=($meiopagamento->bandeiras);
+										$bandeiras= $meiopagamento->bandeiras ;
 										foreach($bandeiras as $bandeira){ ?>
 										  <option value="<?php echo $bandeira->codigo; ?>"><?php echo $bandeira->descricao; ?></option>
 										<?php } ?>
@@ -323,19 +323,46 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 <script>
 	function ffBoleto(){
 		document.getElementById("<?php echo $_code ?>_check_formapagamento").value="boleto";
-		document.getElementById("cc").style.display="none";
-		document.getElementById("tef").style.display="none";
+		
+			
+		var cc =  document.getElementById('cc');
+		if(typeof(cc) != 'undefined' && cc != null)
+		{
+		  document.getElementById("cc").style.display="none";
+		} 	
+
+		var tef = document.getElementById('tef');
+		if(typeof(tef) != 'undefined' && tef != null)
+		{
+		  document.getElementById("tef").style.display="none";
+		}
+
+		
 	}
+	
 	
 	function ffCartaodeCredito(){
 		document.getElementById("<?php echo $_code ?>_check_formapagamento").value="cartaodecredito";
+
+		var tef = document.getElementById('tef');
+		if(typeof(tef) != 'undefined' && tef != null)
+		{
+		  document.getElementById("tef").style.display="none";
+		} 
+
 		document.getElementById("cc").style.display="block";
-		document.getElementById("tef").style.display="none";
+		
 	}
 
 	function ffTef(){
 		document.getElementById("<?php echo $_code ?>_check_formapagamento").value="tef";
-		document.getElementById("cc").style.display="none";
+
+		var cc =  document.getElementById('cc');
+		if(typeof(cc) != 'undefined' && cc != null)
+		{
+		  document.getElementById("cc").style.display="none";
+		} 
+		
 		document.getElementById("tef").style.display="block";
 	}
 
@@ -343,176 +370,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 	function formatarNumero (rnum) {
 		   return "R$ "+ formatamoeda(Math.round(rnum*Math.pow(10,2))/Math.pow(10,2));
 	}
-        /*
-        function validaCpf(cpf){
-			
-			cpf = cpf.replace(/[.\-]/g,"");
-			if(cpf.length != 11)
-				return false;
-			var dv = cpf.substr(cpf.length-2,cpf.length);
-			cpf = cpf.substr(0,9);
-			
-			var soma = 0;
-			for(var i = 0;i < 9; i++){
-				soma += cpf[i]*(i+1);
-			}
-			var dv1 = soma%11;
-			
-			soma = 0;
-			for(var i = 0; i < 9; i++){
-				soma += cpf[i]*i;
-			}
-			soma += dv1*9;
-			var dv2 = soma%11;
-			var digito = dv1+""+dv2;
-			if(dv == digito){ 
-				//window.alert("CPF OK");
-			}else{
-				window.alert("CPF Inválido, digite novamente");
-				document.getElementById('akatus_check_cpf').value = '';
-				//form.co-payment-form.akatus_check_cpf.focus();
-			}
-		}
-        
-        
-        
-        function validateDataExpiracao(){
-            
-            
-            var d = new Date();
-		  //var anoAtual = d.getFullYear().substr(2,2);
-            var anoAtualCompleto = d.getFullYear();
-            var anoAtual = anoAtualCompleto.toString().substr(2,2);
-            var mesAtual = d.getMonth();
-            var isValid = true;
-            
-            //alert(anoAtual);
-            
-            
-            var msg = "A data informada indica que o cartão já expirou. Favor corrigir a data ou utilizar um cartão válido.";
-            
-            var anoInformado = document.getElementById('akatus_check_expiracaoano').value;
-            var mesInformado = document.getElementById('akatus_check_expiracaomes').value; 
-            
-            //alert(anoInformado);
-            
-            if(anoInformado < anoAtual){
-                window.alert(msg);
-                isValid = false;
-            } 
-            
-            if(anoInformado == anoAtual && mesInformado <= mesAtual ){
-                window.alert(msg);
-                isValid = false;
-            }          
-            
-            if(!isValid){
-                document.getElementById('akatus_check_expiracaoano').value = '';
-                document.getElementById('akatus_check_expiracaomes').value = '';                
-            }
-             
-             
-          
-        }
-
-	function validaCartao(bandeira, numero, codseg){
-	
-		var isValid = true;
-		var msg = '';
-	
-		switch(bandeira)
-			{
-			case "cc_cartao_amex":
-				 var prefix = numero.toString().substr(0,2);
-				 if(prefix != "3"){
-				 	isValid = false; 
-				 	msg = "O número do cartão é inválido. Por favor verifique os dados do seu cartão.";
-				 }
-				 
-				 if(numero.length != 15){
-				 	isValid = false;
-				 	msg = "O número de dígitos do número do cartão é inválido. Por favor verifique os dados do cartão.";
-				 } 
-				 
-				 if(codseg.length != 4){
-				 	msg = "Código de segurança inválido. Favor verificar os dados fornecidos.";
-				 	isValid = false;
-				 }
-				 
-			  break;
-			case "cc_cartao_diners":
-			 	var prefix = numero.toString().substr(0,1);
-				 if(prefix != "3"){
-				 	isValid = false; 
-				 	msg = "O número do cartão é inválido. Por favor verifique os dados do seu cartão.";
-				 }
-				 
-				 if(numero.length != 14){
-				 	isValid = false;
-				 	msg = "O número de dígitos do número do cartão é inválido. Por favor verifique os dados do cartão.";
-				 } 
-				 
-				 if(codseg.length != 3){
-				 	msg = "Código de segurança inválido. Favor verificar os dados fornecidos.";
-				 	isValid = false;
-				 }
-		
-			  break;
-			case "cc_cartao_master":
-			var prefix = numero.toString().substr(0,1);
-				 if(prefix != "5"){
-				 	isValid = false; 
-				 	msg = "O número do cartão é inválido. Por favor verifique os dados do seu cartão.";
-				 }
-				 
-				 if(numero.length != 16){
-				 	isValid = false;
-				 	msg = "O número de dígitos do número do cartão é inválido. Por favor verifique os dados do cartão.";
-				 } 
-				 
-				 if(codseg.length != 3){
-				 	msg = "Código de segurança inválido. Favor verificar os dados fornecidos.";
-				 	isValid = false;
-				 }
-						 	
-			  break;
-			case "cc_cartao_visa":
-			 	var prefix = numero.toString().substr(0,1);
-				 if(prefix != "4"){
-				 	isValid = false; 
-				 	msg = "O número do cartão é inválido. Por favor verifique os dados do seu cartão.";
-				 }
-				 
-				 if(numero.length != 13 && numero.length != 16){
-				 	isValid = false;
-				 	msg = "O número de dígitos do número do cartão é inválido. Por favor verifique os dados do cartão.";
-				 } 
-				 
-				 if(codseg.length != 3){
-				 	msg = "Código de segurança inválido. Favor verificar os dados fornecidos.";
-				 	isValid = false;
-				 }
-			
-			break;
-			case "cc_cartao_elo":
-			 	var prefix = numero.toString().substr(0,1);
-				//alert("Elo");
-			break;
-			case "":
-			break;
-			default:
-			 
-			}	
-			
-			if(!isValid){
-				alert(msg);				
-				//document.getElementById('akatus_check_cartaocredito').value = 'r':
-				//document.getElementById('akatus_check_codseguranca').value = '':
-			}
-	
-	}
-        */
-
+       
 	function formatamoeda(num) {
 
 		   x = 0;
@@ -580,168 +438,5 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
            
         
         }
-        /*
-	function selectBandeira(bandeira)
-	{
-	
-	var c = document.getElementById('akatus_check_cartaobandeira');
-        var i=0;
-        for (; i<c.options.length; i++)
-        {       
-                if (c.options[i].value == bandeira)
-                {
-				
-					var newClass = "cc_inactive";
-					
-					var children = document.getElementById('cc_bandeiras').getElementsByTagName('img');
-					for(var i = 0; i < children.length; i++){
-											
-						element = document.getElementById(children[i].getAttribute("id"));					
-						element.setAttribute("class", newClass); //For Most Browsers
-						element.setAttribute("className", newClass); //For IE; harmless to other browsers.					
-						
-					
-					}										
-					element = document.getElementById('cc_'+bandeira);
-					element.setAttribute("class", "cc_active"); //For Most Browsers
-					element.setAttribute("className", "cc_active"); //For IE; harmless to other browsers.
-									
-					c.options[i].selected = true;
-                    break;
-                }
-        }
-	
-	}
-	
-	var c = document.getElementById('akatus_check_cartaobandeira');
-	if(c.selectedIndex != 0){
-	
-		var text = c.options[c.selectedIndex].value;
-		
-		/*jQuery(document).ready(function(){
-		
-			jQuery('.cc_active').addClass("cc_inactive").removeClass("cc_active");
-			jQuery('#cc_'+text).addClass('cc_active');
-			
-		});*/
-		
-	
-/*	
-		var newClass = "cc_inactive";
-		
-		var children = document.getElementById('cc_bandeiras').getElementsByTagName('img');
-		for(var i = 0; i < children.length; i++){
-								
-			element = document.getElementById(children[i].getAttribute("id"));					
-			element.setAttribute("class", newClass); //For Most Browsers
-			element.setAttribute("className", newClass); //For IE; harmless to other browsers.					
-			
-		
-		}										
-		element = document.getElementById('cc_'+bandeira);
-		element.setAttribute("class", "cc_active"); //For Most Browsers
-		element.setAttribute("className", "cc_active"); //For IE; harmless to other browsers.
-
-	
-	}
-	*/
+       
 </script>
-<?php 
-
-function xml2array($contents, $get_attributes=1)
-{
-	if (!$contents)
-		return array();
-
-	if (!function_exists('xml_parser_create')) {
-		return array();
-	}
-
-	//Get the XML parser of PHP - PHP must have this module for the parser to work
-	$parser = xml_parser_create();
-	xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
-	xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
-	xml_parse_into_struct($parser, $contents, $xml_values);
-	xml_parser_free($parser);
-
-	if (!$xml_values)
-		return; //Hmm...
-
-	//Initializations
-
-	$xml_array   = array();
-	$parents     = array();
-	$opened_tags = array();
-	$arr         = array();
-
-	$current = &$xml_array;
-
-	//Go through the tags.
-
-	foreach ($xml_values as $data) {
-		unset($attributes, $value); //Remove existing values, or there will be trouble
-		extract($data); //We could use the array by itself, but this cooler.
-
-		$result = '';
-
-		if ($get_attributes) {//The second argument of the function decides this.
-			$result = array();
-			if (isset($value))
-				$result['value'] = $value;
-
-			//Set the attributes too.
-			if (isset($attributes)) {
-				foreach ($attributes as $attr => $val) {
-					if ($get_attributes == 1)
-						$result['attr'][$attr] = $val; //Set all the attributes in a array called 'attr'
-				}
-			}
-		} elseif (isset($value)) {
-			$result = $value;
-		}
-
-
-
-		//See tag status and do the needed.
-
-		if ($type == "open") {//The starting of the tag '<tag>'
-			$parent[$level - 1] = &$current;
-
-			if (!is_array($current) or (!in_array($tag, array_keys($current)))) { //Insert New tag
-				$current[$tag] = $result;
-				$current = &$current[$tag];
-			} else { //There was another element with the same tag name
-				if (isset($current[$tag][0])) {
-					array_push($current[$tag], $result);
-				} else {
-					$current[$tag] = array($current[$tag], $result);
-				}
-				$last = count($current[$tag]) - 1;
-				$current = &$current[$tag][$last];
-			}
-		} elseif ($type == "complete") { //Tags that ends in 1 line '<tag />'
-			//See if the key is already taken.
-			if (!isset($current[$tag])) { //New Key
-				$result = str_replace('|', '&', $result);
-				$current[$tag] = $result;
-			} else { //If taken, put all things inside a list(array)
-				if ((is_array($current[$tag]) and $get_attributes == 0)//If it is already an array...
-						or (isset($current[$tag][0]) and is_array($current[$tag][0]) and $get_attributes == 1)) {
-					array_push($current[$tag], $result); // ...push the new element into that array.
-				} else { //If it is not an array...
-					$current[$tag] = array($current[$tag], $result); //...Make it an array using using the existing value and the new value
-				}
-			}
-		} elseif ($type == 'close') { //End of tag '</tag>'
-			$current = &$parent[$level - 1];
-		}
-	}
-
-	if (!empty($xml_array['root']['node']['id'])) {
-		$return['root']['node'][0] = $xml_array['root']['node'];
-	} else {
-		$return = $xml_array;
-	}
-	return($return);
-}
-?>
