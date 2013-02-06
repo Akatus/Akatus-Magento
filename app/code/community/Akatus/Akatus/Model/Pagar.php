@@ -856,6 +856,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				
 				$info = $this->getInfoInstance();
 				$formapagamento=$info->getCheckFormapagamento();
+                $url_base = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
 				//ge::throwException($formadepagamento);
 				//$url_destino='https://www.akatus.com/boleto/';
 				
@@ -875,7 +876,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					#monta a mensagem
 					#$msg="<img src = 
 					$msg='Transação realizada com sucesso. Clique na url abaixo para imprimir seu boleto.<br/>';
-					$msg.="<a href='".$url_destino."' target='_blank'>".$url_destino."</a>";
+                    $msg.="<a href='".$url_destino."' target='_blank'><img src='" . $url_base ."skin/frontend/default/default/images/boleto.gif' /></a>";
 					
 					Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
 				}
@@ -892,7 +893,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					
 					#monta a mensagem
 					$msg='Transação realizada com sucesso. Clique na url abaixo e você será redirecionado para seu banco.<br/>';
-					$msg.="<a href='".$url_destino."' target='_blank'>".$url_destino."</a>";
+                    $msg.="<a href='".$url_destino."' target='_blank'><img src='" . $url_base ."/skin/frontend/default/default/images/tef.gif' /></a>";
 					
 					Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
 				}	
