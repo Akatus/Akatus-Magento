@@ -14,6 +14,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 
 </div>
 
+<script src="<?php echo $this->getSkinUrl('akatus/jquery.js') ?>"></script>
 
 <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:block;">
 	
@@ -37,6 +38,9 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		$retJson = curl_exec($curl);
 		$errJson = curl_error($curl);
+
+		Mage::Log("Erro de cURL:". $errJson);
+
 		curl_close($curl);
 		
 		$retornoArray = json_decode($retJson);
@@ -51,9 +55,10 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 				echo "<li>
 					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
 					  <span>".$meiopagamento->descricao.'</span>'; ?>
-					  
-					  <div style="display:none" id="cc" name="cc">   
-						
+
+					  <div style="position: relative; margin-top: 30px;" id="cc" name="cc">
+					  	<sup class="required-sup-info"><span>*</span> campos obrigatórios</sup>
+
 						<style>
 							#tablePay td { vertical-align:middle; }
 							#tablePay td { padding-bottom:2px; }
@@ -64,86 +69,119 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 							#tablePay .validation-advice { margin:0; }
 							#tablePay .input-text { width:230px; }
 							#tablePay td.label { padding-right:10px; }
-						</style>
-						
-						<table id="tablePay" cellspacing="5px" style = 'margin-top:10px; '>
-							<tbody>
-								<tr>
-									<td colspan = "2">
-										<div id = 'cc_bandeiras'>
-											<?php
-												
-												$bandeiras=$meiopagamento->bandeiras;
+							#cc_bandeiras img{
+								width: 45px;
+								margin-right: 0 !important;
+							}
+							#cc_bandeiras img.cc_inactive{
+								border-color: #FFF;
+							}
 
-												foreach($bandeiras as $bandeira){ 
-													
-													echo "<img id = 'cc_".$bandeira->codigo."' src = '".$this->getSkinUrl('cartoes/') . $bandeira->codigo.".png' class = 'cc_inactive";
-													if($i == $count): echo " last"; endif;
-													 echo "' onclick = 'selectBandeira2(this.id);'/>";                                                                                                     
-												}
-												echo "<br>* Não esqueça de selecionar a bandeira de seu cartão.";
-											?>
-											<div>                                                                                         
-                           <input type="hidden" title="<?php echo $this->__('Check Cartaobandeira:') ?>" name="payment[check_cartaobandeira]" id="<?php echo $hiddenbandeira;?>" class="input-text required-entry" />
-                                                                                        
-											</div>
-										</div>
-									</td>
-								</tr>   
-								<?php /*
-								<tr>
-									<td>Bandeira</td>
-									<td>
-										<label>
-											
-										</label>
-									</td>
-								</tr>        */?>  
-								<tr>
-									<td class = 'label'>Nome</td>
-									<td><input type="text" title="<?php echo $this->__('Check Nome:') ?>" class="input-text required-entry" id="<?php echo $_code ?>_check_nome" name="payment[check_nome]" value="<?php echo $this->htmlEscape($this->getInfoData('check_nome')) ?>" /></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td><span class="obs">(Exatamente como esta escrito no cartão)</span></td>
-								</tr>
-								<tr>
-									<td class = 'label'>CPF</td>
-									<td><input title="<?php echo $this->__('Check CPF:') ?>" type="text" size="19" name="payment[check_cpf]" id="<?php echo $_code ?>_check_cpf" class="input-text required-entry" ></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td><span class="obs">(CPF do proprietario do cartão, somente números)</span></td>
-								</tr>
-								<tr>
-									<td class = 'label'>Nº Cartão:</td>
-									<td><input title="<?php echo $this->__('Check Numerocartao:') ?>" type="text" maxlength="16" size="16" name="payment[check_numerocartao]" id="<?php echo $_code ?>_check_cartaocredito" class="input-text required-entry" ></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td><span class="obs">(Sem espaços ou traços)</span></td>
-								</tr>
-								<tr>
-									<td class = 'label'>Validade:</td>
-									<td> 
-										<select title="<?php echo $this->__('Check Expiracaomes:') ?>" value="" maxlength="2" size="1" name="payment[check_expiracaomes]" id="<?php echo $_code ?>_check_expiracaomes" class="input-text required-entry" style="width:50px; float:left;">
-											<option value="">Mês</option>	
-											<option value="01">01</option>
-											<option value="02">02</option>
-											<option value="03">03</option>
-											<option value="04">04</option>
-											<option value="05">05</option>
-											<option value="06">06</option>
-											<option value="07">07</option>
-											<option value="08">08</option>
-											<option value="09">09</option>
-											<option value="10">10</option>
-											<option value="11">11</option>
-											<option value="12">12</option>
-										</select>
-										
-										<select type="text" title="<?php echo $this->__('Check Expiracaoano:') ?>" value="" maxlength="2" size="1" name="payment[check_expiracaoano]" id="<?php echo $_code ?>_check_expiracaoano" class="input-text required-entry" style="width:50px; float:left; ">
-								<option value="">Ano</option>											
+
+							a, #overlink{
+								text-decoration:none;
+								color:#f30;	
+							}
+							p{
+								clear:both;
+								margin:0;
+								padding:.5em 0;
+							}
+							pre{
+								display:block;
+								font:100% "Courier New", Courier, monospace;
+								padding:10px;
+								border:1px solid #bae2f0;
+								background:#e3f4f9;	
+								margin:.5em 0;
+								overflow:auto;
+								width:800px;
+							}
+
+							#tipsimg{border:none;word-wrap: normal; width: 250px;  }
+							#tipsul, #tipsli{
+								margin:0;
+								padding:0;
+							}
+							#tipsli{
+								list-style:none;
+								float:left;
+								display:inline;
+								margin-right:10px;
+							}
+
+							#preview{
+								position:absolute;
+								border:1px solid #ccc;
+								background:#333;
+								padding:5px;
+								display:none;
+								color:#fff;
+								width:249px;
+								line-height: 17px;
+							}
+
+                            .form-list label {
+                                float: none;
+                            }
+
+						</style>
+						<div id="tablePay">
+							<div class="full">
+								<label class="required"><sup>*</sup> Nome no cartão</label>
+								<div class="data_area">
+								<input type="text" title="<?php echo $this->__('Check Nome:') ?>" class="input-text required-entry" id="<?php echo $_code ?>_check_nome" name="payment[check_nome]" value="<?php echo $this->htmlEscape($this->getInfoData('check_nome')) ?>" />
+								</div>
+							</div>							
+							<div class="full">
+								<label class="required"><sup>*</sup> CPF do proprietário do cartão</label>
+								<div class="data_area">
+									<input title="<?php echo $this->__('Check CPF:') ?>" type="text" size="19" name="payment[check_cpf]" id="<?php echo $_code ?>_check_cpf" class="input-text required-entry" >
+								</div>
+							</div>							
+							<div class="full">
+								<label class="required"><sup>*</sup> Número do cartão de crédito</label>
+								<div class="data_area">
+									<input title="<?php echo $this->__('Check Numerocartao:') ?>" type="text" maxlength="16" size="16" name="payment[check_numerocartao]" id="<?php echo $_code ?>_check_cartaocredito" onblur="isCreditCard(this.value);" class="input-text required-entry" >
+								</div>
+							</div>
+							<div class="full" id='cc_bandeiras'>
+							<?php
+								$bandeiras=$meiopagamento->bandeiras;
+
+								foreach($bandeiras as $bandeira){
+
+									echo "<img id = 'cc_".$bandeira->codigo."' src = '".$this->getSkinUrl('cartoes-colorido/') . $bandeira->codigo.".png' class = 'cc_inactive";
+									//if($i == $count): echo " last"; endif;
+									 echo "' onclick = 'selectBandeira29(this.id);'/>";
+								}
+							?>
+							<div>
+	                     <input type="hidden" title="<?php echo $this->__('Check Cartaobandeira:') ?>" name="payment[check_cartaobandeira]" id="<?php echo $hiddenbandeira;?>" class="input-text required-entry" />
+								</div>
+							</div>							
+							<div class="two_fields">
+								<label class="required"><sup>*</sup> Data de vencimento</label>
+								<div class='clr'></div>
+								<div class="short">
+									<select title="<?php echo $this->__('Check Expiracaomes:') ?>" value="" maxlength="2" size="1" style="width:60px" name="payment[check_expiracaomes]" id="<?php echo $_code ?>_check_expiracaomes" class="input-text required-entry">
+										<option value="">Mês</option>
+										<option value="01">01</option>
+										<option value="02">02</option>
+										<option value="03">03</option>
+										<option value="04">04</option>
+										<option value="05">05</option>
+										<option value="06">06</option>
+										<option value="07">07</option>
+										<option value="08">08</option>
+										<option value="09">09</option>
+										<option value="10">10</option>
+										<option value="11">11</option>
+										<option value="12">12</option>
+									</select> 
+									/									
+									<select type="text" title="<?php echo $this->__('Check Expiracaoano:') ?>" style="width:60px" value="" maxlength="2" size="1" name="payment[check_expiracaoano]" id="<?php echo $_code ?>_check_expiracaoano" class="input-text required-entry">
+											<option value="">Ano</option>
 											<option value="12">12</option>
 											<option value="13">13</option>
 											<option value="14">14</option>
@@ -155,109 +193,73 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 											<option value="20">20</option>
 											<option value="21">21</option>
 										</select>
-										
-									</td>
-								</tr>
-								<tr>
-									<td class = 'label'>Código de segurança:</td>
-									<td> <input type="text" title="<?php echo $this->__('Check Codseguranca:') ?>" size="1" maxlength="4" name="payment[check_codseguranca]" id="<?php echo $_code ?>_check_codseguranca" class="input-text required-entry"> </td>
-								</tr>
-								<tr>
-									<td></td>
-									<td><span class="obs"></span></td>
-								</tr>
-								<tr>
-									<td class = 'label'>Parcelas:</td>
-                                                                        
-                                                                        <?php
-                                                                        
-                                                                        $jsonUrl = "https://www.akatus.com/api/v1/parcelamento/simulacao.json?email=".$this->getMethod()->getConfigData('email_gateway')."&amount=".Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()."&payment_method=cartao_master&api_key=".$this->getMethod()->getConfigData('api_key');
-                                                                        
-                                                                        //echo $jsonUrl;
-                                                                        
-                                                                        $curl2 = curl_init($jsonUrl);                                                                        
-                                                                        curl_setopt($curl2, CURLOPT_SSL_VERIFYPEER, false);
-                                                                        curl_setopt($curl2, CURLOPT_POST, false);
-                                                                        curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);
-                                                                        $ret = curl_exec($curl2);
-                                                                        $err = curl_error($curl2);
-                                                                        curl_close($curl2);
-                                                                        
-                                                                        $parcelamentos = json_decode($ret, true);
-                                                                       
-                                                                        $juros1 =  str_replace("% ao mês","", $parcelamentos["resposta"]["descricao"]);
-                                                                        $juros  = str_replace(",",".",$juros1);
-                                                                        $parcelasAssumidas = $parcelamentos["resposta"]["parcelas_assumidas"];
-                                                                        
-                                                                        
-                                                                        if(!empty($parcelamentos['resposta']['parcelas'])){
-                                                                                
-                                                                                ?>
-                                                                                <td>
-                                                                                    <label>
-                                                                                            <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
-                                                                                                    <?php 													
-                                                                                                   
-                                                                                                   	$i =1;										
-                                                                                                    foreach($parcelamentos["resposta"]["parcelas"] as $parcelas){
-                                                                                                                                                                                                                    
-                                                                                                            if($i > $parcelamentos["resposta"]["parcelas_assumidas"]){
-                                                                                                                $jurosdisclaimer = "(".$juros1."% a.m)";
-                                                                                                            } else {
-                                                                                                                $jurosdisclaimer = " sem juros";
-                                                                                                            }
-                                                                                                            
-                                                                                                            $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
-                                                                                                            $valorTotalFinal   = number_format($parcelas['total'], 2, ",", ".");
-                                                                                                            
-                                                                                                            if($parcelas['valor'] < 5 && $jurosdisclaimer != " sem juros")
-                                                                                                            	continue;
+									</div>
+								</div>
+								<div class='clr'></div><br>
+								<div class="full secure-code">
+									<label class="required"><sup>*</sup> Código de Segurança</label>
+									<div class='clr'></div>
 
-                                                                                                            echo "<option value = '{$i}'>{$i}x fixas de R$ {$valorParcelaFinal}    Total: R$ {$valorTotalFinal} ".$jurosdisclaimer."</option>";												
-                                                                                                            
-                                                                                                            $i++;
-                                                                                                        
-                                                                                                         
-                                                                                                    }
-                                                                                                   
-                                                                                                    
-                                                                                                    											
-                                                                                                    ?>
-                                                                                            </select>
-                                                                                    </label>
-                                                                                </td>
-                                                                        
-                                                                                
-                                                                                <?
-                                                                            
-                                                                            
-                                                                            
-                                                                        } else {
-                                                                            
-                                                                            ?>
-                                                                            <td>
-                                                                                    <label>
-                                                                                            <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
-                                                                                                  <option value = '1'>1x fixa de R$ <?= number_format(Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal(), 2, ",", ".")?>    Total: R$<?=number_format(Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal(),2,",","."); ?> </option>";												
-                                                                                                            
-                                                                                                         
-                                                                                                         
-                                                                                                   
-                                                                                            </select>
-                                                                                    </label>
-                                                                                </td>
-                                                                        
-                                                                            <?
-                                                                            
-                                                                            
-                                                                        }
-                                                                        
-                                                                        
-                                                                        ?>
-									
-								</tr>
-							</tbody>
-						</table>
+									<input type="text" title="<?php echo $this->__('Check Codseguranca:') ?>" size="1" maxlength="4" style="width:30px !important; margin-right: 5px;" name="payment[check_codseguranca]" id="<?php echo $_code ?>_check_codseguranca" class="input-text required-entry">
+										<ul id="tipsul" style="float: left;">
+											<li id="tipsli" onMouseover="javascript:imagePreview();"><a onClick="return false;" id="overlink" href="<?php echo $this->getSkinUrl('cvv/')."cvv.jpg";?>" class="preview" title="Esse é o codigo de segurança.">O que é isso?</a></li>
+										</ul>
+										<!--
+										<a href="#" title="O código de segurança do cartão de crédito é uma seqüência numérica complementar ao número do cartão, com até 4 digitos. Ele garante a veracidade dos dados de uma transação eletrônica, uma vez que a informação é verificada somente pelo portador do cartão e não consta em nenhum tipo de leitura magnética.">O que é isto?</a>
+										-->
+								</div><br>
+								<div class='clr'></div>								
+								<div class="full">
+								<label class="required"><sup>*</sup> Número de parcelas</label>
+
+	                        <?php
+
+	                        $jsonUrl = "https://www.akatus.com/api/v1/parcelamento/simulacao.json?email=".$this->getMethod()->getConfigData('email_gateway')."&amount=".Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()."&payment_method=cartao_master&api_key=".$this->getMethod()->getConfigData('api_key');
+
+	                        $curl2 = curl_init($jsonUrl);
+	                        curl_setopt($curl2, CURLOPT_SSL_VERIFYPEER, false);
+	                        curl_setopt($curl2, CURLOPT_POST, false);
+	                        curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);
+	                        $ret = curl_exec($curl2);
+	                        $err = curl_error($curl2);
+	                        curl_close($curl2);
+
+	                        $parcelamentos = json_decode($ret, true);
+
+	                        $juros1 =  str_replace("% ao mês","", $parcelamentos["resposta"]["descricao"]);
+	                        $juros  = str_replace(",",".",$juros1);
+	                        $parcelasAssumidas = $parcelamentos["resposta"]["parcelas_assumidas"];
+
+	                        if(!empty($parcelamentos['resposta']['parcelas'])){ ?>
+
+	                           <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
+                               <?php
+
+                              	$i =1;
+                               foreach($parcelamentos["resposta"]["parcelas"] as $parcelas){
+
+                                       if($i > 1 && $i > $parcelamentos["resposta"]["parcelas_assumidas"]){
+                                           $jurosdisclaimer = "(".$juros1."% a.m)";
+                                       } else {
+                                           $jurosdisclaimer = " sem juros";
+                                       }
+
+                                       $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
+                                       $valorTotalFinal   = number_format($parcelas['total'], 2, ",", ".");
+
+                                       echo "<option value = '{$i}'>{$i}x de R$ {$valorParcelaFinal} ".$jurosdisclaimer."</option>";
+
+                                       $i++;
+
+                               } ?>
+	                            </select>
+	                        <? } else { ?>
+	                           <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
+                                   <option value = '1'>1x de R$ <?= number_format(Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal(), 2, ",", ".")?></option>";
+								</select>
+                           <? } ?>
+						</div><br>						
+						</div>
 					  </div>
 			
 		<?php
@@ -270,7 +272,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			Mage::Log("Mostrar TEF");
 				echo "<li>
 						<input onClick='ffTef();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
-						<span>Cartao de Debito - ".$meiopagamento->descricao."</span>"; ?>
+						<span>Débito Online</span>"; ?>
 				
 				<div style="display:none" id="tef" name="tef">       
 					
@@ -283,18 +285,18 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 										<select  title="<?php echo $this->__('Check Tefbandeira:') ?>" style="width:250px;" name="payment[check_tefbandeira]" id="<?php echo $_code ?>_check_tefbandeira" class="input-text required-entry">
 										<?php 
 										$bandeiras= $meiopagamento->bandeiras ;
-										foreach($bandeiras as $bandeira){ ?>
-										  <option value="<?php echo $bandeira->codigo; ?>"><?php echo $bandeira->descricao; ?></option>
+										foreach($bandeiras as $bandeira){
+											$labels = explode("-",$bandeira->descricao);
+										 ?>
+										  <option value="<?php echo $bandeira->codigo; ?>"><?php echo "Débito via ".$labels[1]; ?></option>
 										<?php } ?>
 										</select>
 									</label>
 								</td>
 							</tr>  
 						</tbody>
-					</table> 
-						
-				</div>			
-			
+					</table> 						
+				</div>	
 		<?php 
 			
 			} 
@@ -304,24 +306,19 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			if($meiopagamento->descricao=="Boleto Bancário"){
 			Mage::Log("Mostrar boleto");
 				echo "<li>
-					  <input onClick='ffBoleto();' type='radio' value='boleto' name='forma' id='forma'>
-					  <span>".$meiopagamento->descricao.'</span>';
-			
-			} 
-		
-			echo "</li>";
+					  <input onClick='ffBoletoAkatus();' type='radio' value='boleto' name='forma' id='forma'>
+					  <span>".$meiopagamento->descricao.'</span>';			
+			} 		
+			echo "</li>";	
+		}/// fim do foreach	
 	
-		}/// fim do foreach
-	
-	
-	?>	   
-         
-    <input title="<?php echo $this->__('Check Formapagamento:') ?>" name="payment[check_formapagamento]" type="hidden" id="<?php echo $_code ?>_check_formapagamento" value="" />
+	?>	            
+ <input title="<?php echo $this->__('Check Formapagamento:') ?>" name="payment[check_formapagamento]" type="hidden" id="<?php echo $_code ?>_check_formapagamento" value="" />
 
 </ul>
 
 <script>
-	function ffBoleto(){
+	function ffBoletoAkatus(){
 		document.getElementById("<?php echo $_code ?>_check_formapagamento").value="boleto";
 		
 			
@@ -405,12 +402,12 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 		}
 	}	
 	
-        
-        
-        function selectBandeira2(bandeira){
-            
-           document.getElementById('<?php echo $_code ?>_check_cartaobandeira').value = bandeira;
-           
+
+
+    function selectBandeira29(bandeira){
+
+           document.getElementById('akatus_check_cartaobandeira').value = bandeira;
+
            if(bandeira.length != 0){
                
                 var newClass = "cc_inactive";
@@ -424,19 +421,125 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
                             if(id == bandeira){                                
                                 currDivElem.setAttribute("class", "cc_active"); 
                                 currDivElem.setAttribute("className", "cc_active");
-                            } else {                            
-                                currDivElem.setAttribute("class", "cc_inactive"); 
-                                currDivElem.setAttribute("className", "cc_inactive");                                
+                               jQuery(currDivElem).attr('src', jQuery(currDivElem).attr('src').replace('/cartoes/', '/cartoes-colorido/'));
+                                
+                            } else {
+                                currDivElem.setAttribute("class", "cc_inactive");
+                                currDivElem.setAttribute("className", "cc_inactive");
+                                 jQuery(currDivElem).attr('src', jQuery(currDivElem).attr('src').replace('/cartoes-colorido/', '/cartoes/'));
+                                
                             }
 
                     }	
                     
            } else {
-               alert('Vazio'); 
-          }  
-    
-           
-        
-        }
+               alert('Vazio');
+          }
+
+
+
+        }    
+
+    function imagePreview(){	
+
+			xOffset = 210;
+			yOffset = 20;
+
+		jQuery("a.preview").hover(function(e){
+			this.t = this.title;
+			this.title = "";	
+			var c = (this.t != "") ? "<br/>" + this.t : "";
+			jQuery("body").append("<p id='preview'><img src='"+ this.href +"' alt='Image preview' /><br /><b>Este é o código de segurança.</b><br /><br />Os cartôes <b>American Express</b>, possuem 4 dígitos e ficam na frente do cartão, acima do numero em alto-relevo. <br />Nos demais cartões, os números do código de segurança são impressos no verso. <br />Os cartões <b>Mastercard</b> e <b>Visa</b> possuem sempre 3 dígitos, sendo o código de segurança sempre os 3 últimos dígitos impressos no verso, conforme a imagem acima. </p>");					
+			jQuery("#preview")
+				.css("top",(e.pageY - xOffset) + "px")
+				.css("left",(e.pageX + yOffset) + "px")
+				.fadeIn("fast");						
+	    },
+		function(){
+			this.title = this.t;	
+			jQuery("#preview").remove();
+	    });	
+		jQuery("a.preview").mousemove(function(e){
+			jQuery("#preview")
+				.css("top",(e.pageY - xOffset) + "px")
+				.css("left",(e.pageX + yOffset) + "px");
+		});			
+	}
+
+	jQuery('input#akatus_check_cartaocredito').keyup(function(){
+
+		var val = jQuery(this).val();
+		var first = val.charAt(0);
+		var second = val.charAt(1);
+		var third = val.charAt(2);
+		var fourth = val.charAt(3);
+
+		
+		if( first == "4" ){ // Visa
+			jQuery('img#cc_cartao_visa').trigger('click');
+		}
+		else if( first == "5" ){ // Master
+			jQuery('img#cc_cartao_master').trigger('click');
+		}
+		else if( first == "6" ){ // Elo
+			jQuery('img#cc_cartao_elo').trigger('click');
+		}
+		else if( (first == "3") && ((second == "4") || (second == "7")) ){ // Amex
+			jQuery('img#cc_cartao_amex').trigger('click');
+		}
+		else if( (first == "3") && ((second != "4") && (second != "7")) ){ // DinersClub
+			jQuery('img#cc_cartao_diners').trigger('click');
+		}
+		else if( first == "" ){ // DinersClub
+			var children = document.getElementById('cc_bandeiras').getElementsByTagName('img');
+
+                for(var i = 0; i < children.length; i++){
+
+                    var id = children[i].getAttribute("id");
+                    var currDivElem = document.getElementById(id);
+               
+                    jQuery(currDivElem).attr('src', jQuery(currDivElem).attr('src').replace('/cartoes/', '/cartoes-colorido/'));
+
+                }
+
+		}
+
+	});
        
+	 function isCreditCard(CC){ 
+
+	 	var isCCard;
+
+	      if (CC.length > 19)
+	           isCCard = false;
+
+	      var sum = 0; 
+	      var mul = 1; 
+	      var l = CC.length;
+	      for (i = 0; i < l; i++) 
+	      {
+	           digit = CC.substring(l-i-1,l-i);
+	           tproduct = parseInt(digit ,10)*mul;
+	           if (tproduct >= 10)
+	                sum += (tproduct % 10) + 1;
+	           else
+	                sum += tproduct;
+	           if (mul == 1)
+	                mul++;
+	           else
+	                mul--;
+	      }
+	      if ((sum % 10) == 0)
+	           isCard = true;
+	      else
+	           isCard =false;
+
+	       if(!isCard){
+	       	alert("O número do seu cartão de crédito foi digitado errado. Por favor verifique o número digitado antes de prosseguir com sua compra.");
+	       	jQuery('input#akatus_check_cartaocredito').val('');
+	       	document.getElementById("akatus_check_cartaocredito").focus()
+	       	/*jQuery('#akatus_check_cartaocredito').focus();*/
+	       }
+
+	 }
 </script>
