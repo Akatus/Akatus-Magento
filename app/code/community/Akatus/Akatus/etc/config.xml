@@ -93,6 +93,11 @@
               </connection>
             </akatus_read>
         </resources>
+        
+        <helpers>
+            <class>Akatus_Akatus_Helper</class>
+        </helpers>        
+        
     </global>
  
  
@@ -105,6 +110,7 @@
             <akatus>
 				<!-- by default this payment method is inactive -->
                 <active>1</active>
+                <modo>SANDBOX</modo>
 				<!-- model to handle logic for this payment method -->
                 <model>akatus/pagar</model>
 				<!-- order status for new orders paid by this payment method -->

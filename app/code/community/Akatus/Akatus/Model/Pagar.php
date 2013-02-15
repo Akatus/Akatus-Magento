@@ -779,8 +779,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 		$status="";
 		$orderId = $payment->getParentId();
 		
-		$url = 'https://www.akatus.com/api/v1/carrinho.xml';
-		#$url = 'https://dev.akatus.com/api/v1/carrinho.xml';
+		$url = Akatus_Akatus_Helper_Data::getMeiosPagamentoUrl();
+
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,$url);
 		#curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
@@ -857,13 +857,10 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				$info = $this->getInfoInstance();
 				$formapagamento=$info->getCheckFormapagamento();
                 $url_base = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
-				//ge::throwException($formadepagamento);
-				//$url_destino='https://www.akatus.com/boleto/';
 				
 				if($formapagamento=="boleto"){
 					
-					#$url_destino='https://dev.akatus.com/boleto/';
-					$url_destino='https://www.akatus.com/boleto/';
+					$url_destino= Akatus_Akatus_Helper_Data::getBoletoUrl();
 					$str = $data['resposta']['transacao']['value'];
 					$url_destino.=base64_encode($str).'.html';
 					
@@ -883,8 +880,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				
 				if($formapagamento=="tef"){
 					
-					#$url_destino='https://dev.akatus.com/tef/';
-					$url_destino='https://www.akatus.com/tef/';
+					$url_destino= Akatus_Akatus_Helper_Data::getTefUrl();
 					$str = $data['resposta']['transacao']['value'];
 					$url_destino.=base64_encode($str).'.html';
 					

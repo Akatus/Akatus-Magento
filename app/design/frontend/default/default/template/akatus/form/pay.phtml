@@ -25,8 +25,8 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 																		"email"=>$this->getMethod()->getConfigData('email_gateway'))));
 		$toJson = json_encode($json);
 
-		$url = 'https://www.akatus.com/api/v1/meios-de-pagamento.json';
-		#$url = 'https://dev.akatus.com/api/v1/meios-de-pagamento.json';
+		$url = $this->getMeiosPagamentoUrl();
+		
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,$url);
 		#curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
@@ -56,7 +56,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
 					  <span>".$meiopagamento->descricao.'</span>'; ?>
 
-					  <div style="position: relative; margin-top: 30px;" id="cc" name="cc">
+					  <div style="position: relative; margin-top: 30px; display: none;" id="cc" name="cc">
 					  	<sup class="required-sup-info"><span>*</span> campos obrigatórios</sup>
 
 						<style>
@@ -246,6 +246,10 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 
                                        $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
                                        $valorTotalFinal   = number_format($parcelas['total'], 2, ",", ".");
+
+										if($parcelas['valor'] < 5 && $jurosdisclaimer != " sem juros")
+											continue;
+
 
                                        echo "<option value = '{$i}'>{$i}x de R$ {$valorParcelaFinal} ".$jurosdisclaimer."</option>";
 

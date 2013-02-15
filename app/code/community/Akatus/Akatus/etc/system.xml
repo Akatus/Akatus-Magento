@@ -20,6 +20,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </active>
+                        <modo translate="label">
+                            <label>Modo</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Akatus_Akatus_Adminhtml_Model_Modo</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </modo>                            
                         <order_status translate="label">
                             <label>New order status</label>
                             <frontend_type>select</frontend_type>
@@ -32,7 +41,7 @@
                         <title translate="label">
                             <label>Title</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>2</sort_order>
+                            <sort_order>3</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
