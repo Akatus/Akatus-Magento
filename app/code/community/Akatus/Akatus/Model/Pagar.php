@@ -779,7 +779,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 		$status="";
 		$orderId = $payment->getParentId();
 		
-		$url = Akatus_Akatus_Helper_Data::getMeiosPagamentoUrl();
+		$url = Akatus_Akatus_Helper_Data::getCarrinhoUrl();
 
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,$url);

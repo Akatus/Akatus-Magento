@@ -38,7 +38,11 @@ class Akatus_Akatus_Helper_Data extends Mage_Core_Helper_Abstract
     
     private static function _isSandboxMode()
     {
-        return Mage::getModel('akatus/pagar')->getConfigData('modo');
+        if (Mage::getModel('akatus/pagar')->getConfigData('modo') === 'SANDBOX') {
+            return true;
+        }
+        
+        return false;
     }    
     
 }
