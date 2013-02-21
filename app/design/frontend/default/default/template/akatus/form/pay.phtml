@@ -214,9 +214,22 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 
 	                        <?php
 
-	                        $jsonUrl = "https://www.akatus.com/api/v1/parcelamento/simulacao.json?email=".$this->getMethod()->getConfigData('email_gateway')."&amount=".Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()."&payment_method=cartao_master&api_key=".$this->getMethod()->getConfigData('api_key');
+                            $tokens = array(
+                                '{EMAIL}',
+                                '{API_KEY}',
+                                '{AMOUNT}'
+                            );
 
-	                        $curl2 = curl_init($jsonUrl);
+                            $valores = array(
+                                $this->getMethod()->getConfigData('email_gateway'),
+                                $this->getMethod()->getConfigData('api_key'),
+                                Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()
+                            );
+
+                            $preUrl = $this->getParcelamentoUrl();
+                            $url = str_replace($tokens, $valores, $preUrl);
+                            
+	                        $curl2 = curl_init($url);
 	                        curl_setopt($curl2, CURLOPT_SSL_VERIFYPEER, false);
 	                        curl_setopt($curl2, CURLOPT_POST, false);
 	                        curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);

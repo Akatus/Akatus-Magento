@@ -6,6 +6,9 @@ class Akatus_Akatus_Helper_Data extends Mage_Core_Helper_Abstract
     const MEIOS_PAGAMENTO           = "https://www.akatus.com/api/v1/meios-de-pagamento.json";
     const MEIOS_PAGAMENTO_SANDBOX   = "https://dev.akatus.com/api/v1/meios-de-pagamento.json";
     
+    const PARCELAMENTO              = "https://www.akatus.com/api/v1/parcelamento/simulacao.json?email={EMAIL}&amount={AMOUNT}&payment_method=cartao_master&api_key={API_KEY}";
+    const PARCELAMENTO_SANDBOX      = "https://dev.akatus.com/api/v1/parcelamento/simulacao.json?email={EMAIL}&amount={AMOUNT}&payment_method=cartao_master&api_key={API_KEY}";
+    
     const CARRINHO          = "https://www.akatus.com/api/v1/carrinho.xml";
     const CARRINHO_SANDBOX  = "https://dev.akatus.com/api/v1/carrinho.xml";
     
@@ -21,6 +24,11 @@ class Akatus_Akatus_Helper_Data extends Mage_Core_Helper_Abstract
         return self::_isSandboxMode() ? self::MEIOS_PAGAMENTO_SANDBOX : self::MEIOS_PAGAMENTO;
     }
 
+    public static function getParcelamentoUrl()
+    {
+        return self::_isSandboxMode() ? self::PARCELAMENTO_SANDBOX : self::PARCELAMENTO;
+    }
+    
     public static function getCarrinhoUrl()
     {
         return self::_isSandboxMode() ? self::CARRINHO_SANDBOX : self::CARRINHO;        
