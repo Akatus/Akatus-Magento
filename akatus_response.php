@@ -1,138 +1,147 @@
 ﻿<?php
-	#instancia o Mage
-	require_once 'app/Mage.php';
-        
-	//$ref = Mage::app()->getStore();
-	//print_r($ref);
-	//exit;
-	
-	
-	$mageRunCode = isset( $_SERVER ['MAGE_RUN_CODE'] ) ? $_SERVER ['MAGE_RUN_CODE'] : '';
-	$mageRunType = isset($_SERVER ['MAGE_RUN_TYPE'] ) ? $_SERVER ['MAGE_RUN_TYPE'] : 'store';
-	Mage::app ( $mageRunCode, $mageRunType );
-	
-	
-        #abre conexao com o banco de dados
-	$db = Mage::getSingleton('core/resource')->getConnection('core_write');
-       
-        #inicializacao de variaveis
-	$orderId=0;	
-	$CodigoTransacao = $_POST["transacao_id"];
-	$StatusTransacao = $_POST["status"];
-	$tokenRecebido   = $_POST["token"];
-	
-	$StatusNovo="";
 
-        
-	#resgata o numero da order atrelado a transacao
-	$retorno=$db->query("SELECT idpedido FROM akatus_transacoes WHERE codtransacao = '".$CodigoTransacao."' ORDER BY id DESC");
-	
-	
-       $i =0;
-	while ($row = $retorno->fetch()){
-		
-		echo ($i+1).")".$row['idpedido']. "<br />";
-		$orderId = $row['idpedido'];
-		$i++;
-	}
+class StatusTransacaoAkatus
+{
+    const AGUARDANDO_PAGAMENTO = 'Aguardando Pagamento';
+    const EM_ANALISE = 'Em Análise';
+    const APROVADO = 'Aprovado';
+    const CANCELADO = 'Cancelado';
+    const DEVOLVIDO = 'Devolvido';
+    const COMPLETO = 'Completo';
+}
 
-/*
+#instancia o Mage
+require_once 'app/Mage.php';
+require_once 'app/code/core/Mage/Sales/Model/Order.php';
 
-	$retorno2=$db->query("SELECT * FROM akatus_transacoes");
-	
-	
-       $i =0;
-	while ($row = $retorno2->fetch()){
-		
-		echo ($i+1).") idpedido:".$row['idpedido']. " id:".$row["id"]." codtransacao:".$row["codtransacao"]."<br />";
-		//$orderId = $row['idpedido'];
-		$i++;
-	}
+$codigoTransacao    = $_POST["transacao_id"];
+$statusRecebido     = $_POST["status"];
+$tokenRecebido      = $_POST["token"];
 
+#faz a conferencia da transacao
+$tokenNIP = Mage::getStoreConfig('payment/akatus/tokennip');
 
-	*/
-       echo "OrderId obtido:" .$orderId;
-    
-    echo 'tentemos pegar o token NIP';    
-	#faz a conferencia da transacao
-	$tokennip=Mage::getStoreConfig('payment/akatus/tokennip');
-	
-	echo 'tokenip resgatado';
-	
-	//validao retorno
-	if($tokennip == $tokenRecebido){
-            echo "Tokenip OK!";
-       
-		/*
-	 		* Altera o Status do Pedido
-			STATE_NEW             = 'new';				STATE_PENDING_PAYMENT = 'pending_payment';
-    		STATE_PROCESSING      = 'processing';    	STATE_COMPLETE        = 'complete';
-    		STATE_CLOSED          = 'closed';	    	STATE_CANCELED        = 'canceled';
-    		STATE_HOLDED          = 'holded';	    	STATE_PAYMENT_REVIEW  = 'payment_review';
-    	*/	
-            
-           /// echo "Alterando Status da transacao para inserir no BD do magento. Entra: ".$StatusTransacao. " deve ser salvo ";
-            
-		switch ($StatusTransacao) {
-    		case "Aguardando Pagamento":
-    	    	$StatusNovo="pending_payment";
-        		break;
-    		case "Aprovado":
-        		$StatusNovo="complete";
-        		break;
-    		case "Em Análise":
-        		$StatusNovo="pending_payment";
-        		break;
-    		case "Cancelado":
-        		$StatusNovo="canceled";
-        		break;
-    		case "Devolvido":
-        		$StatusNovo="canceled";
-        		break;
-    		case "Completo":
-        		$StatusNovo="complete";
-        		break;                        
-    		default: 
-               $StatusNovo="processing";	
-		} 
-		echo $StatusNovo . ".";
-		#altera status do pedido
-		$order = Mage::getModel('sales/order')->load($orderId);
-                    echo 'getModel!';  	
-        //        print_r($order);
-		$order->setStatus($StatusNovo);
-          echo 'setStatus!';     
-		$order->save();
-		 echo 'saved!';
+//validao retorno
+if($tokenNIP == $tokenRecebido) {
+    $order = getOrder($codigoTransacao);
+    $novoStatus = getNovoStatus($statusRecebido, $order->getStatus());
 
-		 if($order->canInvoice() && $StatusTransacao == "Aprovado") {
+    if ($novoStatus) {
+        $order->setStatus($novoStatus);
+        $order->save();
 
-		 	echo "Vamos criar a fatura";
-		    /**
-		     * Create invoice
-		     * The invoice will be in 'Pending' state
-		     */
-		    $invoiceId = Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), array());
-		 
-		    $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId($invoiceId);
-		 
-		    /**
-		     * Pay invoice
-		     * i.e. the invoice state is now changed to 'Paid'
-		     */
-		    $invoice->capture()->save();
-		} else {
-			echo "A fatura vai ficar pra próxima";
-		}
+        if($statusRecebido == StatusTransacaoAkatus::APROVADO && $order->canInvoice()) {
+            $invoiceId = Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), array());
+            $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId($invoiceId);
+            $invoice->capture()->save();            
+        }
+    }
+}
 
+function getOrder($codigoTransacao)
+{
+    $mageRunCode = isset($_SERVER ['MAGE_RUN_CODE'] ) ? $_SERVER ['MAGE_RUN_CODE'] : '';
+    $mageRunType = isset($_SERVER ['MAGE_RUN_TYPE'] ) ? $_SERVER ['MAGE_RUN_TYPE'] : 'store';
+    Mage::app($mageRunCode, $mageRunType);
+    $db = Mage::getSingleton('core/resource')->getConnection('core_write');        
 
+    $retorno = $db->query("SELECT idpedido FROM akatus_transacoes WHERE codtransacao = '".$codigoTransacao."' ORDER BY id DESC");
+    $transacao = $retorno->fetch();        
 
+    return Mage::getModel('sales/order')->load($transacao['idpedido']);        
+}
 
+function getNovoStatus($statusRecebido, $statusAtual)
+{
+    switch ($statusRecebido) {
 
-               
-	} else {
-			echo 'tokenip fumaça!!!';
-	}
-        
-       
-      
+        case StatusTransacaoAkatus::COMPLETO:
+            $listaStatus = array(
+                Mage_Sales_Model_Order::STATE_NEW,
+                Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
+                Mage_Sales_Model_Order::STATE_PROCESSING,
+                Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW,
+                Mage_Sales_Model_Order::STATE_HOLDED
+            );                
+
+            if (in_array($statusAtual, $listaStatus)) {
+                return Mage_Sales_Model_Order::STATE_COMPLETE;
+            } else {
+                return false;
+            }            
+
+        case StatusTransacaoAkatus::APROVADO:
+            $listaStatus = array(
+                Mage_Sales_Model_Order::STATE_NEW,
+                Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
+                Mage_Sales_Model_Order::STATE_PROCESSING,
+                Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW,
+                Mage_Sales_Model_Order::STATE_HOLDED
+            );
+
+            if (in_array($statusAtual, $listaStatus)) {
+                return Mage_Sales_Model_Order::STATE_COMPLETE;
+            } else {
+                return false;
+            }                
+
+        case StatusTransacaoAkatus::CANCELADO:
+            $listaStatus = array(
+                Mage_Sales_Model_Order::STATE_NEW,
+                Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
+                Mage_Sales_Model_Order::STATE_PROCESSING,
+                Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW,
+                Mage_Sales_Model_Order::STATE_HOLDED,
+                Mage_Sales_Model_Order::STATE_COMPLETE
+            );                
+
+            if (in_array($statusAtual, $listaStatus)) {
+                return Mage_Sales_Model_Order::STATE_CANCELED;                    
+            } else {
+                return false;
+            }                
+
+        case StatusTransacaoAkatus::DEVOLVIDO:
+            $listaStatus = array(
+                Mage_Sales_Model_Order::STATE_NEW,
+                Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
+                Mage_Sales_Model_Order::STATE_PROCESSING,
+                Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW,
+                Mage_Sales_Model_Order::STATE_HOLDED,
+                Mage_Sales_Model_Order::STATE_COMPLETE                
+            );                
+
+            if (in_array($statusAtual, $listaStatus)) {
+                return Mage_Sales_Model_Order::STATE_CANCELED;                    
+            } else {
+                return false;
+            }
+
+        case StatusTransacaoAkatus::AGUARDANDO_PAGAMENTO:
+            $listaStatus = array(
+                Mage_Sales_Model_Order::STATE_NEW,
+                Mage_Sales_Model_Order::STATE_PROCESSING
+            );                
+
+            if (in_array($statusAtual, $listaStatus)) {
+                return Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+            } else {
+                return false;
+            }
+
+        case StatusTransacaoAkatus::EM_ANALISE:
+            $listaStatus = array(
+                Mage_Sales_Model_Order::STATE_NEW,
+                Mage_Sales_Model_Order::STATE_PROCESSING
+            );                
+
+            if (in_array($statusAtual, $listaStatus)) {
+                return Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+            } else {
+                return false;
+            }                                                
+
+        default:
+            return Mage_Sales_Model_Order::STATE_PROCESSING;                    
+    } 
+}
