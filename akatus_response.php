@@ -48,7 +48,11 @@ function getOrder($codigoTransacao)
     $retorno = $db->query("SELECT idpedido FROM akatus_transacoes WHERE codtransacao = '".$codigoTransacao."' ORDER BY id DESC");
     $transacao = $retorno->fetch();        
 
-    return Mage::getModel('sales/order')->load($transacao['idpedido']);        
+    if ($order = Mage::getModel('sales/order')->load($transacao['idpedido'])) {
+        return $order;
+    } else {
+        return Mage::getModel('sales/order')->loadByIncrementId($transacao['idpedido']);
+    }
 }
 
 function getNovoStatus($statusRecebido, $statusAtual)

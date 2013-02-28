@@ -533,10 +533,9 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 		
 		#id do pedido
 		$orderId = $payment->getParentId();
-                
-                
 		$order = Mage::getModel('sales/order')->load($orderId);
-	
+        $incrementId = $order->getIncrementId();
+                
 		#regata asa informacoes do cliente para montar o XMl
 		$customer = Mage::getSingleton('customer/session')->getCustomer();
 		$shippingId = $order->getShippingAddress()->getId();
@@ -759,7 +758,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				<frete>'.$transacao_freteTotal.'</frete> 
 				<desconto>'.$transacao_descontoTotal.'</desconto>
 				<peso_total>'.$transacao_pesoTotal.'</peso_total> 
-				<referencia>'.$orderId.'</referencia>				
+				<referencia>'.$incrementId.'</referencia>				
 			</transacao>';
                         
                         
