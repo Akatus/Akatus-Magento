@@ -41,7 +41,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
         $valid = true;
         
 
-        $telSoNumeros = ereg_replace('([^0-9])','',$tel);
+        $telSoNumeros = preg_replace('([^0-9])','',$tel);
         $size = strlen($tel);
         
         if($size == 10 || $size == 11){
@@ -195,7 +195,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     }
 
     function limpaTelefone($tel){
-        $return = ereg_replace('([^0-9])','',$tel);
+        $return = preg_replace('([^0-9])','',$tel);
 
         return $return;
     }
@@ -538,7 +538,6 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                 
 		#regata asa informacoes do cliente para montar o XMl
 		$customer = Mage::getSingleton('customer/session')->getCustomer();
-		$shippingId = $order->getShippingAddress()->getId();
         $billingId = $order->getBillingAddress()->getId();
 
         $customerAddressId = Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling();
@@ -571,7 +570,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			</recebedor>';
 			
 			$consumer_tel=$address->getData("telephone");
-			$consumer_tel= ereg_replace('([^0-9])','',$consumer_tel);
+			$consumer_tel= preg_replace('([^0-9])','',$consumer_tel);
             $isValidTelephone = $this->isTelephoneValid($consumer_tel);
                         
             $xml.='
@@ -653,7 +652,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				
                                 
                         $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),2,'.','');
-                        $freteTotal      += round( ($order->base_shipping_incl_tax/$order->total_item_count/$item->getQtyToInvoice()), 2, '');
+                        $freteTotal      += round( ($order->base_shipping_incl_tax/$order->total_item_count/$item->getQtyToInvoice()), 2);
                         $quantidadeTotal += $item->getQtyToInvoice();
                         $pesoTotal       += $item->getWeight();
                         $descricao        = $item->getName();
