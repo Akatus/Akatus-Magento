@@ -1,36 +1,30 @@
 <?php 
-
-	$_code=$this->getMethodCode();
-	
+    $_code=$this->getMethodCode();
 ?>
 
 <div>
-
-<?php echo $this->getMethod()->getConfigData('message');
-
-$hiddenbandeira = $_code."_check_cartaobandeira";
-
-?>
-
+    <?php
+        echo $this->getMethod()->getConfigData('message');
+        $hiddenbandeira = $_code."_check_cartaobandeira";
+    ?>
 </div>
 
 <script src="<?php echo $this->getSkinUrl('akatus/jquery.js') ?>"></script>
 
-<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:block;">
-	
+<ul class="form-list" id="payment_form_<?php echo $_code; ?>" style="display:block;">
 	<?php
-
-		
-		$json = array("meios_de_pagamento"=>array("correntista"=>array("api_key"=>$this->getMethod()->getConfigData('api_key'), 
-																		"email"=>$this->getMethod()->getConfigData('email_gateway'))));
+        $json = array("meios_de_pagamento" => array(
+            "correntista" => array(
+                    "api_key" => $this->getMethod()->getConfigData('api_key'),
+                    "email"   => $this->getMethod()->getConfigData('email_gateway')
+            )
+        ));
+        
 		$toJson = json_encode($json);
-
 		$url = $this->getMeiosPagamentoUrl();
 		
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,$url);
-		#curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-		# curl_setopt($curl, CURLOPT_USERPWD, $user . ":" . $passwd);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/4.0");
 		curl_setopt($curl, CURLOPT_POST, true);
@@ -44,14 +38,11 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 		curl_close($curl);
 		
 		$retornoArray = json_decode($retJson);
-		
 		$meios = $retornoArray->resposta->meios_de_pagamento;
 
-		foreach($meios as $meiopagamento){		
+		foreach($meios as $meiopagamento) {		
 
-		if($meiopagamento->descricao == "Cartão de Crédito")
-			{
-				Mage::Log("Mostrar Cartões");
+		if ($meiopagamento->descricao == "Cartão de Crédito") {
 				echo "<li>
 					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
 					  <span>".$meiopagamento->descricao.'</span>'; ?>
@@ -204,9 +195,6 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 										<ul id="tipsul" style="float: left;">
 											<li id="tipsli" onMouseover="javascript:imagePreview();"><a onClick="return false;" id="overlink" href="<?php echo $this->getSkinUrl('cvv/')."cvv.jpg";?>" class="preview" title="Esse é o codigo de segurança.">O que é isso?</a></li>
 										</ul>
-										<!--
-										<a href="#" title="O código de segurança do cartão de crédito é uma seqüência numérica complementar ao número do cartão, com até 4 digitos. Ele garante a veracidade dos dados de uma transação eletrônica, uma vez que a informação é verificada somente pelo portador do cartão e não consta em nenhum tipo de leitura magnética.">O que é isto?</a>
-										-->
 								</div><br>
 								<div class='clr'></div>								
 								<div class="full">
@@ -234,35 +222,32 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 	                        curl_setopt($curl2, CURLOPT_POST, false);
 	                        curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);
 	                        $ret = curl_exec($curl2);
-	                        $err = curl_error($curl2);
 	                        curl_close($curl2);
 
-	                        $parcelamentos = json_decode($ret, true);
+	                        $totalParcelas = json_decode($ret, true);
+                            $totalParcelas['resposta']['parcelas'] = array_slice($totalParcelas['resposta']['parcelas'], 0, $this->getMethod()->getConfigData('numero_maximo_parcelas'));
+                            
+	                        $juros =  str_replace("% ao mês","", $totalParcelas["resposta"]["descricao"]);
+	                        $parcelasAssumidas = $totalParcelas["resposta"]["parcelas_assumidas"];
 
-	                        $juros1 =  str_replace("% ao mês","", $parcelamentos["resposta"]["descricao"]);
-	                        $juros  = str_replace(",",".",$juros1);
-	                        $parcelasAssumidas = $parcelamentos["resposta"]["parcelas_assumidas"];
-
-	                        if(!empty($parcelamentos['resposta']['parcelas'])){ ?>
+	                        if(! empty($totalParcelas['resposta']['parcelas'])){ ?>
 
 	                           <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
                                <?php
 
                               	$i =1;
-                               foreach($parcelamentos["resposta"]["parcelas"] as $parcelas){
+                               foreach($totalParcelas["resposta"]["parcelas"] as $parcelas){
 
-                                       if($i > 1 && $i > $parcelamentos["resposta"]["parcelas_assumidas"]){
-                                           $jurosdisclaimer = "(".$juros1."% a.m)";
+                                       if($i > 1 && $i > $parcelasAssumidas){
+                                           $jurosdisclaimer = "(".$juros."% a.m)";
                                        } else {
                                            $jurosdisclaimer = " sem juros";
                                        }
 
                                        $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
-                                       $valorTotalFinal   = number_format($parcelas['total'], 2, ",", ".");
 
 										if($parcelas['valor'] < 5 && $jurosdisclaimer != " sem juros")
 											continue;
-
 
                                        echo "<option value = '{$i}'>{$i}x de R$ {$valorParcelaFinal} ".$jurosdisclaimer."</option>";
 
@@ -283,10 +268,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 			} 
 
-
-
 			if( $meiopagamento->descricao=="TEF"){
-			Mage::Log("Mostrar TEF");
 				echo "<li>
 						<input onClick='ffTef();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
 						<span>Débito Online</span>"; ?>
@@ -318,10 +300,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 			
 			} 
 
-
-
 			if($meiopagamento->descricao=="Boleto Bancário"){
-			Mage::Log("Mostrar boleto");
 				echo "<li>
 					  <input onClick='ffBoletoAkatus();' type='radio' value='boleto' name='forma' id='forma'>
 					  <span>".$meiopagamento->descricao.'</span>';			
@@ -554,8 +533,7 @@ $hiddenbandeira = $_code."_check_cartaobandeira";
 	       if(!isCard){
 	       	alert("O número do seu cartão de crédito foi digitado errado. Por favor verifique o número digitado antes de prosseguir com sua compra.");
 	       	jQuery('input#akatus_check_cartaocredito').val('');
-	       	document.getElementById("akatus_check_cartaocredito").focus()
-	       	/*jQuery('#akatus_check_cartaocredito').focus();*/
+	       	document.getElementById("akatus_check_cartaocredito").focus();
 	       }
 
 	 }

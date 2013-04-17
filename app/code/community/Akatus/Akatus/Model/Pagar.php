@@ -4,9 +4,6 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 {
 	protected $_formBlockType = 'akatus/form_pay';
 	protected $_infoBlockType = 'akatus/info_pay';
-
-    
-        
         
     /**
     * Identificacao do metodo de pagamento 
@@ -15,16 +12,11 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     */
     protected $_code = 'akatus';
  
-    
-    
-    
-    
     /**
      * Abaixo algumas flags qua vao determinar os recursos disponiveis e o comportamento
      * deste modulo
      * @see todas as flags disponiveis in Mage_Payment_Model_Method_Abstract
      */
-     
     protected $_isGateway               = true;
     protected $_canAuthorize            = true;
     protected $_canCapture              = true;
@@ -37,32 +29,21 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     protected $_canSaveCc               = false;
   
     function isTelephoneValid($tel){
-        
         $valid = true;
-        
 
         $telSoNumeros = preg_replace('([^0-9])','',$tel);
-        $size = strlen($tel);
+        $size = strlen($telSoNumeros);
         
-        if($size == 10 || $size == 11){
-            
-        } else {
+        if($size < 10 || $size > 11){
             $valid = false;
         }
         
-        
-        if(!$valid){
+        if(!$valid) {
             $errorMsg = $this->_getHelper()->__('Telefone inválido. Deve ser informado o código de área com 2 dígitos seguido do número do telefone com 8 ou 9 dígitos, e somente números (Ex.: 1199999999).');
-
-                #gera uma exception caso nenhuma forma de pagamento seja selecionada
-                Mage::throwException($errorMsg);
+            Mage::throwException($errorMsg);
         }
-        
-        
-        
     }
     
-
     function stringToUf($estado){
         
         $uf = "";
@@ -191,146 +172,92 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
         }
 
         return $uf;
-
     }
 
-    function limpaTelefone($tel){
-        $return = preg_replace('([^0-9])','',$tel);
-
-        return $return;
+    function limpaTelefone($tel) {
+        return preg_replace('([^0-9])','',$tel);
     }
+    
+    function isCpfValid($cpf) {
+        //Etapa 1: Cria um array com apenas os digitos numéricos, isso permite receber o cpf em diferentes formatos como "000.000.000-00", "00000000000", "000 000 000 00" etc...
+        $j=0;
+        for($i=0; $i < (strlen($cpf)); $i++) {
+            if(is_numeric($cpf[$i])) {
+                $num[$j]=$cpf[$i];
+                $j++;
+            }
+        }
+        
+        //Etapa 2: Conta os dígitos, um cpf válido possui 11 dígitos numéricos.
+        if(count($num) != 11) {
+            $isCpfValid = false;
+        } else { //Etapa 3: Combinações como 00000000000 e 22222222222 embora não sejam cpfs reais resultariam em cpfs válidos após o calculo dos dígitos verificares e por isso precisam ser filtradas nesta parte.
+            for($i=0; $i<10; $i++) {
+                if ($num[0]==$i && $num[1]==$i && $num[2]==$i && $num[3]==$i && $num[4]==$i && $num[5]==$i && $num[6]==$i && $num[7]==$i && $num[8]==$i) {
+                    $isCpfValid = false;
+                    break;
+                }
+            }
+        }
 
+        //Etapa 4: Calcula e compara o primeiro dígito verificador.
+        if(! isset($isCpfValid)) {
+            $j=10;
+            for($i=0; $i<9; $i++) {
+                $multiplica[$i] = $num[$i] * $j;
+                $j--;
+            }
+
+            $soma = array_sum($multiplica);	
+            $resto = $soma % 11;			
+
+            if($resto < 2) {
+                $dg = 0;
+            } else {
+                $dg = 11 - $resto;
+            }
+            
+            if($dg != $num[9]) {
+                $isCpfValid = false;
+            }
+        }
+
+        //Etapa 5: Calcula e compara o segundo dígito verificador.
+        if( ! isset($isCpfValid)) {
+            $j=11;
+            for($i=0; $i<10; $i++) {
+                $multiplica[$i]=$num[$i]*$j;
+                $j--;
+            }
+            
+            $soma = array_sum($multiplica);
+            $resto = $soma % 11;
+                
+            if($resto < 2) {
+                $dg = 0;
+            } else {
+                $dg = 11 - $resto;
+            }
+            
+            if($dg != $num[10]) {
+                $isCpfValid = false;
+            } else {
+                $isCpfValid = true;
+            }
+        }
+
+        return $isCpfValid;					
+    }
     
-     function isCpfValid($cpf){
-			//Etapa 1: Cria um array com apenas os digitos numéricos, isso permite receber o cpf em diferentes formatos como "000.000.000-00", "00000000000", "000 000 000 00" etc...
-			$j=0;
-			for($i=0; $i<(strlen($cpf)); $i++)
-				{
-					if(is_numeric($cpf[$i]))
-						{
-							$num[$j]=$cpf[$i];
-							$j++;
-						}
-				}
-			//Etapa 2: Conta os dígitos, um cpf válido possui 11 dígitos numéricos.
-			if(count($num)!=11)
-				{
-					$isCpfValid=false;
-				}
-			//Etapa 3: Combinações como 00000000000 e 22222222222 embora não sejam cpfs reais resultariam em cpfs válidos após o calculo dos dígitos verificares e por isso precisam ser filtradas nesta parte.
-			else
-				{
-					for($i=0; $i<10; $i++)
-						{
-							if ($num[0]==$i && $num[1]==$i && $num[2]==$i && $num[3]==$i && $num[4]==$i && $num[5]==$i && $num[6]==$i && $num[7]==$i && $num[8]==$i)
-								{
-									$isCpfValid=false;
-									break;
-								}
-						}
-				}
-			//Etapa 4: Calcula e compara o primeiro dígito verificador.
-			if(!isset($isCpfValid))
-				{
-					$j=10;
-					for($i=0; $i<9; $i++)
-						{
-							$multiplica[$i]=$num[$i]*$j;
-							$j--;
-						}
-					$soma = array_sum($multiplica);	
-					$resto = $soma%11;			
-					if($resto<2)
-						{
-							$dg=0;
-						}
-					else
-						{
-							$dg=11-$resto;
-						}
-					if($dg!=$num[9])
-						{
-							$isCpfValid=false;
-						}
-				}
-			//Etapa 5: Calcula e compara o segundo dígito verificador.
-			if(!isset($isCpfValid))
-				{
-					$j=11;
-					for($i=0; $i<10; $i++)
-						{
-							$multiplica[$i]=$num[$i]*$j;
-							$j--;
-						}
-					$soma = array_sum($multiplica);
-					$resto = $soma%11;
-					if($resto<2)
-						{
-							$dg=0;
-						}
-					else
-						{
-							$dg=11-$resto;
-						}
-					if($dg!=$num[10])
-						{
-							$isCpfValid=false;
-						}
-					else
-						{
-							$isCpfValid=true;
-						}
-				}
-			//Trecho usado para depurar erros.
-			/*
-			if($isCpfValid==true)
-				{
-					echo "<font color=\"GREEN\">Cpf é Válido</font>";
-				}
-			if($isCpfValid==false)
-				{
-					echo "<font color=\"RED\">Cpf Inválido</font>";
-				}
-			*/
-			//Etapa 6: Retorna o Resultado em um valor booleano.
-			return $isCpfValid;					
-		}
-    
-    public function assignData($data)
-    {
-    	if (!($data instanceof Varien_Object)) {
+    public function assignData($data) {
+        if (! ($data instanceof Varien_Object)) {
     		$data = new Varien_Object($data);
     	}
     	$info = $this->getInfoInstance();
     
-		$checkNomeCC = $data->getCheckFormapagamento();	
-		$checkBandCC = $data->getCheckCartaobandeira();	
-			/*
-		if($checkNomeCC == "cartaodecredito"):
-
-			if($checkBandCC == "cartao_amex"){
-				
-				$numeroCartao = $data->getCheckNumerocartao();
-				$last5 = substr($numeroCartao,(strlen($numeroCartao)-5),strlen($numeroCartao));
-				
-				$numCart = "XXXX.XXXXXX." . $last5;
-				
-			}else{
-			
-				$numeroCartao = $data->getCheckNumerocartao();
-				$last4 = substr($numeroCartao,(strlen($numeroCartao)-4),strlen($numeroCartao));
-				
-				$numCart = "XXXX.XXXX.XXXX." . $last4;
-				
-			}
-			
-		endif;
-		*/
-	
     	$info->setCheckCartaobandeira($data->getCheckCartaobandeira())
     	->setCheckNome($data->getCheckNome())
     	->setCheckCpf($data->getCheckCpf())
-    	#->setCheckNumerocartao($numCart)
     	->setCheckNumerocartao($data->getCheckNumerocartao())
     	->setCheckExpiracaomes($data->getCheckExpiracaomes())
     	->setCheckExpiracaoano($data->getCheckExpiracaoano())
@@ -342,70 +269,70 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     	return $this;
     }
  	
-    public function validaNumeroDoCartao($numeroCartao, $codseg, $cartaobandeira){
+    public function validaNumeroDoCartao($numeroCartao, $codseg, $cartaobandeira) {
         
         $isValid = true;
         switch($cartaobandeira){
             
             case "cartao_amex":
-                        $prefix = substr($numeroCartao, 0,1);                
-                        if($prefix != "3"){
-                            $isValid = false;                             
-                        } else if(strlen($numeroCartao) != 15){
-                            $isValid = false;                            
-                        } else if(strlen($codseg) != 4){                            
-                            $isValid = false;
-                        }
+                $prefix = substr($numeroCartao, 0,1);                
+                if($prefix != "3"){
+                    $isValid = false;                             
+                } else if(strlen($numeroCartao) != 15){
+                    $isValid = false;                            
+                } else if(strlen($codseg) != 4){                            
+                    $isValid = false;
+                }
 
                 break;
+                
             case "cartao_diners":
-                    $prefix = substr($numeroCartao, 0,1);
-                        if($prefix != "3"){
-                            $isValid = false;                            
-                        }else if(strlen($numeroCartao) != 14){
-                            $isValid = false;
-                        }else if(strlen($codseg) != 3){                           
-                            $isValid = false;
-                        }
+                $prefix = substr($numeroCartao, 0,1);
+                if($prefix != "3"){
+                    $isValid = false;                            
+                }else if(strlen($numeroCartao) != 14){
+                    $isValid = false;
+                }else if(strlen($codseg) != 3){                           
+                    $isValid = false;
+                }
 
                 break;
+                
             case "cartao_master":               
-                        $prefix = substr($numeroCartao, 0,1);       
-                        if($prefix != "5"){
-                            $isValid = false;                             
-                        }else  if(strlen($numeroCartao) != 16){
-                            $isValid = false;                           
-                        }else if(strlen($codseg) != 3){
-                            $isValid = false;
-                        }
+                $prefix = substr($numeroCartao, 0,1);       
+                if($prefix != "5"){
+                    $isValid = false;                             
+                }else  if(strlen($numeroCartao) != 16){
+                    $isValid = false;                           
+                }else if(strlen($codseg) != 3){
+                    $isValid = false;
+                }
+
                 break;
+                
             case "cartao_visa":
-                    $prefix = substr($numeroCartao, 0,1);                   
-                        if($prefix != "4"){
-                            $isValid = false;                            
-                        }else if(strlen($numeroCartao) != 13 && strlen($numeroCartao) != 16){
-                            $isValid = false;                               
-                        }else  if(strlen($codseg) != 3){                           
-                            $isValid = false;  
-                        }
+                $prefix = substr($numeroCartao, 0,1);                   
+                if($prefix != "4"){
+                    $isValid = false;                            
+                }else if(strlen($numeroCartao) != 13 && strlen($numeroCartao) != 16){
+                    $isValid = false;                               
+                }else  if(strlen($codseg) != 3){                           
+                    $isValid = false;  
+                }
 
             break;
+            
             case "cartao_elo":
-
-            break;			
+                break;
+            
             default:	
                 
-            }	
+        }	
 
         return $isValid;
-        
-        
-        
     }
     
-    
-     public function validaDataCartaoDeCredito($mes, $ano){
-        
+    public function validaDataCartaoDeCredito($mes, $ano) {
         $anoAtual = date("y");        
         $mesAtual = date("m");
         
@@ -418,29 +345,27 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
         } 
         
         return $isValid;
-        
     }
     
-    public function validate()
-    {
+    public function validate() {
     	parent::validate();
     
     	$info = $this->getInfoInstance();
     
-    	$cartaobandeira = str_replace("cc_", "", $info->getCheckCartaobandeira());
-        $nome=$info->getCheckNome();
-    	$cpf=$info->getCheckCpf();
-    	$numerocartao=$info->getCheckNumerocartao();
-    	$expiracaomes=$info->getCheckExpiracaomes();
-    	$expiracaoano=$info->getCheckExpiracaoano();
-    	$codseguranca=$info->getCheckCodseguranca();
-    	$parcelamento=$info->getCheckParcelamento();
-    	$tefbandeira=$info->getCheckTefbandeira();
-    	$formapagamento=$info->getCheckFormapagamento();
+    	$cartaobandeira     = str_replace("cc_", "", $info->getCheckCartaobandeira());
+        $nome               = $info->getCheckNome();
+    	$cpf                = $info->getCheckCpf();
+    	$numerocartao       = $info->getCheckNumerocartao();
+    	$expiracaomes       = $info->getCheckExpiracaomes();
+    	$expiracaoano       = $info->getCheckExpiracaoano();
+    	$codseguranca       = $info->getCheckCodseguranca();
+    	$parcelamento       = $info->getCheckParcelamento();
+    	$tefbandeira        = $info->getCheckTefbandeira();
+    	$formapagamento     = $info->getCheckFormapagamento();
     
         
     	#verifica se a forma de pagamento foi selecionada
-    	if(empty($formapagamento)){
+    	if(empty($formapagamento)) {
     		$errorCode = 'invalid_data';
     		$errorMsg = $this->_getHelper()->__('Selecione uma forma de pagamento');
     
@@ -448,28 +373,22 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     		Mage::throwException($errorMsg);
     	}
     
-    	if($formapagamento=="cartaodecredito"){
-    		if(empty($cartaobandeira) || empty($nome) || empty($cpf) || empty($numerocartao) || empty($codseguranca)){
-    		$errorCode = 'invalid_data';
-    		$errorMsg = $this->_getHelper()->__('Campos de preenchimento obrigatório');
+    	if($formapagamento=="cartaodecredito") {
+    		if(empty($cartaobandeira) || empty($nome) || empty($cpf) || empty($numerocartao) || empty($codseguranca)) {
+                $errorCode = 'invalid_data';
+                $errorMsg = $this->_getHelper()->__('Campos de preenchimento obrigatório');
     
-                $validCPF = $this->isCpfValid($cpf);
-        
-                
-                if(!$validCPF) {
-
+                if(! $this->isCpfValid($cpf)) {
                     $errorCode = 'invalid_data';
-                        $errorMsg = $this->_getHelper()->__('CPF inválido.');
+                    $errorMsg = $this->_getHelper()->__('CPF inválido.');
 
-                        #gera uma exception caso nenhuma forma de pagamento seja selecionada
-                        Mage::throwException($errorMsg);
-
+                    #gera uma exception caso nenhuma forma de pagamento seja selecionada
+                    Mage::throwException($errorMsg);
                 }
 
-
-            //age::throwException($cartaobandeira);
                 $validCartao = $this->validaNumeroDoCartao($numerocartao, $codseguranca, $cartaobandeira);
-                if(!$validCartao){
+                
+                if(! $validCartao) {
                     $errorCode = 'invalid_data';
                     $errorMsg = $this->_getHelper()->__('Cartão inválido. Revise os dados informados e tente novamente.');
 
@@ -478,7 +397,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                 }
 
                 $validadataCartao = $this->validaDataCartaoDeCredito($expiracaomes, $expiracaoano);
-                if(!$validadataCartao){
+                
+                if(! $validadataCartao) {
                     $errorCode = 'invalid_data';
                     $errorMsg = $this->_getHelper()->__('Cartão vencido. Revise os dados de expiracao e envie novamente.');
 
@@ -486,82 +406,59 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                     Mage::throwException($errorMsg);
                 }
 
-                
-                
-                
-                
-    		#gera uma exception caso os campos do cartão nao forem preenchidos
-    		Mage::throwException($errorMsg);
+                #gera uma exception caso os campos do cartão nao forem preenchidos
+                Mage::throwException($errorMsg);
     		}
     	}
     
-    	if($formapagamento=="tef"){
-    		if(empty($tefbandeira)){
-    		$errorCode = 'invalid_data';
-    		$errorMsg = $this->_getHelper()->__('Escolha o banco pelo qual deseja realizar a tranferẽncia eletrônica (TEF)');
-    
+    	if($formapagamento === "tef") {
+            if(empty($tefbandeira)){
+                $errorCode = 'invalid_data';
+                $errorMsg = $this->_getHelper()->__('Escolha o banco pelo qual deseja realizar a tranferẽncia eletrônica (TEF)');
     		
-    		#gera uma exception caso os campos de tef não forem preenchidos
-    		Mage::throwException($errorMsg);
+                #gera uma exception caso os campos de tef não forem preenchidos
+                Mage::throwException($errorMsg);
     		}
     	}
     	    	
     	return $this;
     }    
- 
 	
-	public function authorize(Varien_Object $payment, $amount)
-	{
-		#monta XML para enviar ao gateway
-		$xml_gateway=$this->GeraXMl($payment, $amount);
+	public function authorize(Varien_Object $payment, $amount) {
+		$xml_gateway = $this->gerarXML($payment);
 
 		#envia ao gateway as informacoes de pagamento
-		$status=$this->EnviaGateway($payment, $xml_gateway);
-		
-		return $this;
+		return $this->enviaGateway($payment, $xml_gateway);
 	}
-    
 	
-	
-	public function GeraXML(Varien_Object $payment, $amount){
-		/*
-		 * Constroi o XML que será enviado ao gateway
-		 */
+	public function gerarXML(Varien_Object $payment) {
+		$xml = "";
 		
-		#variavel que vai conter o XML para ser enviado ao servidor
-		$xml="";
-		
-		#id do pedido
 		$orderId = $payment->getParentId();
 		$order = Mage::getModel('sales/order')->load($orderId);
         $incrementId = $order->getIncrementId();
                 
-		#regata asa informacoes do cliente para montar o XMl
 		$customer = Mage::getSingleton('customer/session')->getCustomer();
         $billingId = $order->getBillingAddress()->getId();
-
         $customerAddressId = Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling();
-        if ($customerAddressId){
+        
+        if ($customerAddressId) {
            $address = Mage::getModel('customer/address')->load($customerAddressId);
         } else {           
            $address = Mage::getModel('sales/order_address')->load($billingId);              
         }
 		
-    	$customer_nome=$order->customer_firstname . " ".$order->customer_lastname;
+    	$customer_nome = $order->customer_firstname . " ".$order->customer_lastname;
     
-    	if($customer_nome==""){
-    		$customer_nome=$customer->getName();
+    	if ($customer_nome == "") {
+    		$customer_nome = $customer->getName();
     	}
     	
-    	$customer_email=$order->customer_email;
-    	if($customer_email==""){
-    		$customer_email=$customer->getEmail();
+    	$customer_email = $order->customer_email;
+    	if ($customer_email=="") {
+    		$customer_email = $customer->getEmail();
     	}
-        
-        
     	
-    	
-		#configura o xml
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>
 		<carrinho>			
 			<recebedor>
@@ -569,8 +466,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			<email>'.$this->getConfigData('email_gateway').'</email>
 			</recebedor>';
 			
-			$consumer_tel=$address->getData("telephone");
-			$consumer_tel= preg_replace('([^0-9])','',$consumer_tel);
+			$consumer_tel = $address->getData("telephone");
+			$consumer_tel = preg_replace('([^0-9])', '', $consumer_tel);
             $isValidTelephone = $this->isTelephoneValid($consumer_tel);
                         
             $xml.='
@@ -599,8 +496,6 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
             $cidade = empty($mg_cidade) ? "Não Informado" : $mg_cidade;
             $estado = empty($mg_estado) ? "SP" : $mg_estado;
             $cep    = empty($mg_cep) ? "12345678" : $mg_cep;
-
-
 		
 			$xml .= '<enderecos>
 				<endereco>
@@ -625,83 +520,69 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				</telefones>
 			</pagador>';
 			
-    	
-    		
-    		#pega todos os itens do pedido para enviar ao gateway
 			$items = $order->getAllVisibleItems();
 			$xml .= '
 			<!-- Produtos -->
 			<produtos>';
                         
-                        $totalItens= sizeof($items);                    
-                        
-                        $valorTotal = '';
-                        $freteTotal = '';
-                        $nome = '';
-                        $quantidadeTotal = '';
-                        $pesoTotal = '';
-                        $desc = '';
-                        $codigo = '';
-                        
-			foreach ($items as $itemId => $item)
-			{
-				//$preco= number_format($item->getPrice(),'2','','');
+            $totalItens= sizeof($items);                    
 
-                            
-                                $preco = $item->getPrice();
-				
-                                
-                        $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),2,'.','');
-                        $freteTotal      += round( ($order->base_shipping_incl_tax/$order->total_item_count/$item->getQtyToInvoice()), 2);
-                        $quantidadeTotal += $item->getQtyToInvoice();
-                        $pesoTotal       += $item->getWeight();
-                        $descricao        = $item->getName();
-                        $cod              = str_replace("-","",$item->getSku());
+            $valorTotal = '';
+            $freteTotal = '';
+            $nome = '';
+            $quantidadeTotal = '';
+            $pesoTotal = '';
+            $desc = '';
+            $codigo = '';
 
-                        $preco_item = number_format($item->getPrice(), 2, '', '');
-                        Mage::Log('produto>>preco: '.$preco_item);
+            foreach ($items as $itemId => $item) {
+                $valorTotal      += number_format($item->getPrice()*$item->getQtyToInvoice(),2,'.','');
+                $freteTotal      += round( ($order->base_shipping_incl_tax/$order->total_item_count/$item->getQtyToInvoice()), 2);
+                $quantidadeTotal += $item->getQtyToInvoice();
+                $pesoTotal       += $item->getWeight();
+                $cod              = str_replace("-","",$item->getSku());
 
-                        $peso_item = number_format($item->getWeight(), 2, '', '');
-                        Mage::Log('produto>>peso: '.$peso_item);
+                $preco_item = number_format($item->getPrice(), 2, '', '');
+                Mage::Log('produto>>preco: '.$preco_item);
 
-                                $xml .='<produto>
-                                            <codigo>'.$cod.'</codigo>
-                                            <descricao>'.$item->getName().'</descricao>
-                                            <quantidade>'.$item->getQtyToInvoice().'</quantidade>
-                                            <preco>'.$preco_item.'</preco>
-                                            <peso>'.$peso_item.'</peso>
-                                            <frete>0</frete>
-                                            <desconto>0</desconto>
-                                        </produto>';
+                $peso_item = number_format($item->getWeight(), 2, '', '');
+                Mage::Log('produto>>peso: '.$peso_item);
 
-                                
-                                Mage::Log('SKU:'.$item->getSku());
-                                Mage::Log('descricao(item->getName()):'.$item->getName());
-                                Mage::Log('quantidade (item->getQtyToInvoice()):'.$item->getQtyToInvoice());
-                                Mage::Log('preco (item->getPrice()):'.$item->getPrice());
-                                Mage::Log('peso (item->getWeight()):'.$item->getWeight());
-                                Mage::Log('frete:'.number_format((($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice()), 2,'',''));
-                                Mage::Log('desconto (item->discount_amount):'.$item->discount_amount);
-                                Mage::Log('desconto (item->discount_percent):'.$item->discount_percent);
-                                Mage::Log('desconto carrinho (order->discount_amount):'.$order->discount_amount);
-                                Mage::Log('grand_amount:');
-                        }
-                        
-                        $descontoTotal = abs(number_format($order->discount_amount,'2','.',''));
-                        
-                        $_totalData =$order->getData();
-                        $_grand = number_format($_totalData['grand_total'],2,'.', '');
-                        Mage::Log('grand_amount:'.$_grand);
-                        Mage::Log('precototal:'.$valorTotal);
-                        
-                       if(empty($_grand)){
-                        	$_grand = number_format($valorTotal-$descontoTotal, 2, '.', '');
-                        }
+                $xml .='<produto>
+                            <codigo>'.$cod.'</codigo>
+                            <descricao>'.$item->getName().'</descricao>
+                            <quantidade>'.$item->getQtyToInvoice().'</quantidade>
+                            <preco>'.$preco_item.'</preco>
+                            <peso>'.$peso_item.'</peso>
+                            <frete>0</frete>
+                            <desconto>0</desconto>
+                        </produto>';
+
+                Mage::Log('SKU:'.$item->getSku());
+                Mage::Log('descricao(item->getName()):'.$item->getName());
+                Mage::Log('quantidade (item->getQtyToInvoice()):'.$item->getQtyToInvoice());
+                Mage::Log('preco (item->getPrice()):'.$item->getPrice());
+                Mage::Log('peso (item->getWeight()):'.$item->getWeight());
+                Mage::Log('frete:'.number_format((($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice()), 2,'',''));
+                Mage::Log('desconto (item->discount_amount):'.$item->discount_amount);
+                Mage::Log('desconto (item->discount_percent):'.$item->discount_percent);
+                Mage::Log('desconto carrinho (order->discount_amount):'.$order->discount_amount);
+                Mage::Log('grand_amount:');
+            }
+
+            $descontoTotal = abs(number_format($order->discount_amount,'2','.',''));
+
+            $_totalData =$order->getData();
+            $_grand = number_format($_totalData['grand_total'],2,'.', '');
+            Mage::Log('grand_amount:'.$_grand);
+            Mage::Log('precototal:'.$valorTotal);
+
+            if(empty($_grand)) {
+                 $_grand = number_format($valorTotal-$descontoTotal, 2, '.', '');
+            }
                        
 			$xml.='</produtos>';
 			
-			
-			#forma de pagamento
 			$info = $this->getInfoInstance();  
 			$formapagamento=$info->getCheckFormapagamento();
 			$cartaobandeira = $info->getCheckCartaobandeira();
@@ -715,7 +596,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			$tefbandeira=$info->getCheckTefbandeira();
 			
 			$xml_forma_pagamento="";
-			if($formapagamento=="cartaodecredito"){
+            
+			if($formapagamento=="cartaodecredito") {
 				$xml_forma_pagamento='
 					<meio_de_pagamento>'.trim(str_replace("cc_", " ", $cartaobandeira)).'</meio_de_pagamento>
 					<numero>'.$numerocartao.'</numero>
@@ -729,14 +611,12 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					</portador>';
 			}
 			
-			if($formapagamento=="tef"){
-				$xml_forma_pagamento='
-					<meio_de_pagamento>'.$tefbandeira.'</meio_de_pagamento>';
+			if($formapagamento == "tef") {
+				$xml_forma_pagamento = '<meio_de_pagamento>'.$tefbandeira.'</meio_de_pagamento>';
 			}
 
-			if($formapagamento=="boleto"){
-				$xml_forma_pagamento='
-					<meio_de_pagamento>'.$formapagamento.'</meio_de_pagamento>';
+			if($formapagamento == "boleto") {
+				$xml_forma_pagamento = '<meio_de_pagamento>'.$formapagamento.'</meio_de_pagamento>';
 			}
 			
 			$transacao_freteTotal = number_format($order->base_shipping_incl_tax, 2, '.', '');
@@ -748,144 +628,102 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
             $transacao_pesoTotal = number_format($pesoTotal, 2, '.', '');
             Mage::Log('transacao>>peso: '.$transacao_pesoTotal); 
 
-                        $xml.='
-			<!-- Transacao -->
-			<transacao>
-				'.$xml_forma_pagamento.'
-				<!-- Dados do checkout -->
-				<moeda>BRL</moeda>
-				<frete>'.$transacao_freteTotal.'</frete> 
-				<desconto>'.$transacao_descontoTotal.'</desconto>
-				<peso_total>'.$transacao_pesoTotal.'</peso_total> 
-				<referencia>'.$incrementId.'</referencia>				
-			</transacao>';
-                        
+            $xml.='
+                <!-- Transacao -->
+                <transacao>
+                    '.$xml_forma_pagamento.'
+                    <!-- Dados do checkout -->
+                    <moeda>BRL</moeda>
+                    <frete>'.$transacao_freteTotal.'</frete> 
+                    <desconto>'.$transacao_descontoTotal.'</desconto>
+                    <peso_total>'.$transacao_pesoTotal.'</peso_total> 
+                    <referencia>'.$incrementId.'</referencia>				
+                </transacao>';
                         
                         
 		$xml.='</carrinho>';
-                //discount_amount
-                Mage::Log("XML pronto para o envio. Vamos ver o que dá....");
                 
 		return $xml;
 	}
 
-	public function EnviaGateway(Varien_Object $payment,$xml)
-	{
-		/*
-		 * Faz o envio do XML para o gateway de pagamento.
-		 */
-		$status="";
+	public function enviaGateway(Varien_Object $payment, $xml) {
 		$orderId = $payment->getParentId();
 		
 		$url = Akatus_Akatus_Helper_Data::getCarrinhoUrl();
 
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,$url);
-		#curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-		# curl_setopt($curl, CURLOPT_USERPWD, $user . ":" . $passwd);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/4.0");
 		curl_setopt($curl, CURLOPT_POST, true);
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $xml);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		$ret = curl_exec($curl);
-		$err = curl_error($curl);
 		curl_close($curl);
                 
 		$data = $this->xml2array($ret);
 		
-		
-		
-		#Criado para facilitar o ambiente de depuração.
 		if($this->getConfigData('module_debug')=='1'){
-		Mage::throwException("XML RECEBIDO:\n\n".$ret."\n\n\nXML Enviado:\n".$xml);
+            Mage::throwException("XML RECEBIDO:\n\n".$ret."\n\n\nXML Enviado:\n".$xml);
 		}
                 
-                Mage::Log("..:: ENVIADO ::..\n\n".$xml."\n\n ..:: RECEBIDO ::..\n\n".$ret);
-		/*
-		print_r($ret);
-		print_r($data);	
-		*/
-		//echo "<br />Status:".$data["resposta"]["status"]["value"];			
-		
+        Mage::Log("..:: ENVIADO ::..\n\n".$xml."\n\n ..:: RECEBIDO ::..\n\n".$ret);
 
 		$info = $this->getInfoInstance();
-		$formapagamento=$info->getCheckFormapagamento();
+		$formapagamento = $info->getCheckFormapagamento();
+        $resposta = $data["resposta"]["status"]["value"];
 		 
-		//print_r($formadepagamento);
-		//exit();			
-
-		if($data["resposta"]["status"]["value"]=="erro")
-		{
-			#exibe a mensagem de erro
+		if($resposta == "erro") {
             Mage::Log('Um erro ocorreu na transação: '.$data["resposta"]["descricao"]["value"]);
 			Mage::throwException("Não foi possível realizar sua transação");
-			
-			#exibe a mensagem de erro
-			#Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Não foi possivel realizar sua transação")); 
-		}
-		else
-		{
-			//echo "Não deu erro, retornou algum outro status";
-			if($data["resposta"]["status"]["value"]=="Em Análise"){
-				//echo "Em análise";
-				//exit;			
-				//Salva no sistema o ID da transação
-                                Mage::Log('Em Análise, salvando o status...');
-				try{
-				$transacaoId=$data["resposta"]["transacao"]["value"];
-				$this->SalvaIdTransacao($orderId,$transacaoId);
-				
-				$order = Mage::getModel('sales/order')->load($orderId);
-				$order->setStatus('pending_payment');
-				$order->save();
-				$info = $this->getInfoInstance();
-				$formadepagamento = $info->getCheckFormapagamento();
-				//Mage::throwException($formadepagamento);
-				//Mage::throwException("Seu pedido foi realizado com sucesso. Estamos aguardando a confirmação de sua administradora e assim que o pagamento for liberado enviaremos o produto");
-				$msg = "Seu pedido foi realizado com sucesso. Estamos aguardando a confirmação de sua administradora e assim que o pagamento for liberado enviaremos o produto";
-				Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
+            
+		} else {
+			if($resposta == "Em Análise"){
+				try {
+                    $transacaoId = $data["resposta"]["transacao"]["value"];
+                    $this->SalvaIdTransacao($orderId,$transacaoId);
+
+                    $order = Mage::getModel('sales/order')->load($orderId);
+                    $order->setStatus('pending_payment');
+                    $order->save();
+                    
+                    $msg = "Seu pedido foi realizado com sucesso. Estamos aguardando a confirmação de sua administradora e assim que o pagamento for liberado enviaremos o produto";
+                    Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
+                    
 				} catch (Exception $e){
 					$e->getMessage();
-				
 				}
 
-			}elseif($data["resposta"]["status"]["value"]=="Aguardando Pagamento" || $data["resposta"]["status"]["value"]=="Processando"){
-				
+			} else if ($resposta == "Aguardando Pagamento" || $resposta == "Processando"){
 				$info = $this->getInfoInstance();
-				$formapagamento=$info->getCheckFormapagamento();
+				$formapagamento = $info->getCheckFormapagamento();
                 $url_base = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
 				
-				if($formapagamento=="boleto"){
-					
-					$url_destino= Akatus_Akatus_Helper_Data::getBoletoUrl();
+				if ($formapagamento == "boleto") {
+					$url_destino = Akatus_Akatus_Helper_Data::getBoletoUrl();
 					$str = $data['resposta']['transacao']['value'];
-					$url_destino.=base64_encode($str).'.html';
+					$url_destino .= base64_encode($str).'.html';
 					
 					$payment->setCheckBoletourl($url_destino);
 					$payment->save();	
 					
-					$transacaoId=$data["resposta"]["transacao"]["value"];
-					$this->SalvaIdTransacao($orderId,$transacaoId);
+					$transacaoId = $data["resposta"]["transacao"]["value"];
+					$this->SalvaIdTransacao($orderId, $transacaoId);
 					
-					#monta a mensagem
-					#$msg="<img src = 
 					$msg='Transação realizada com sucesso. Clique na url abaixo para imprimir seu boleto.<br/>';
                     $msg.="<a href='".$url_destino."' target='_blank'><img src='" . $url_base ."skin/frontend/default/default/images/boleto.gif' /></a>";
 					
 					Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
 				}
 				
-				if($formapagamento=="tef"){
-					
-					$url_destino= Akatus_Akatus_Helper_Data::getTefUrl();
+				if ($formapagamento=="tef") {
+					$url_destino = Akatus_Akatus_Helper_Data::getTefUrl();
 					$str = $data['resposta']['transacao']['value'];
-					$url_destino.=base64_encode($str).'.html';
+					$url_destino .= base64_encode($str).'.html';
 					
-					$transacaoId=$data["resposta"]["transacao"]["value"];
-					$this->SalvaIdTransacao($orderId,$transacaoId);
+					$transacaoId = $data["resposta"]["transacao"]["value"];
+					$this->SalvaIdTransacao($orderId, $transacaoId);
 					
-					#monta a mensagem
 					$msg='Transação realizada com sucesso. Clique na url abaixo e você será redirecionado para seu banco.<br/>';
                     $msg.="<a href='".$url_destino."' target='_blank'><img src='" . $url_base ."/skin/frontend/default/default/images/tef.gif' /></a>";
 					
@@ -893,30 +731,19 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				}	
                 
 			} else {
-	              //$info = $this->getInfoInstance();
-                  //$formapagamento=$info->getCheckFormapagamento();
                   Mage::throwException("Pagamento não autorizado. Consulte sua operadora para maiores informações.");
-                  //$msq = "Pagamento não autorizado. Consulte sua operadora para maiores informações.";              
-				  //Mage::throwException("Cartão Recusado:".$data["resposta"]["status"]["value"]."<br />Forma de pagamento:".$formadepagamento);
 			}
 		}
-		
-		
 	}
 	
-	public function SalvaIdTransacao($orderId, $transacaoId)
-	{
+	public function SalvaIdTransacao($orderId, $transacaoId) {
 		//Salva as informaces do pedido para Validacao com o NIP
 		$db = Mage::getSingleton('core/resource')->getConnection('core_write');	
 		$db->query("DELETE FROM akatus_transacoes WHERE idpedido='".$orderId."'");
 		$db->query("INSERT into akatus_transacoes (idpedido,codtransacao) VALUES('".$orderId."','".$transacaoId."')");
-                
 	}
 	
-	
-	
-	function xml2array($contents, $get_attributes=1)
-	{
+	function xml2array($contents, $get_attributes=1) {
         if (!$contents)
                 return array();
 
@@ -1011,7 +838,4 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
         }
         return($return);
 	}
-	 
-	 
 }
-?>
