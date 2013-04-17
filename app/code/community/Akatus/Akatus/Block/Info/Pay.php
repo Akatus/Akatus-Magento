@@ -9,32 +9,8 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 		$info = $this->getInfo();
 		$transport = new Varien_Object();
 		$transport = parent::_prepareSpecificInformation($transport);
-		/*
-		switch($info->getCheckFormapagamento()){
-			case "boleto":
-				$formaPagamento = "Boleto Bancário";
-				break;
-			case "cartaodecredito":
-				$formaPagamento = "Cartão de Crédito";
-				break;
-			case "tef":
-				$formaPagamento = "Cartão de Débito - TEF";
-				break;
-		}
-		/*$array = array(
-			Mage::helper('payment')->__('Forma de Pagamento') => $formaPagamento
-			//Code correction
-		);*/
-
-		#var_dump($info);
 	
 	if($info->getCheckFormapagamento() == 'boleto'){
-			$array = array(
-				Mage::helper('payment')->__('Forma de Pagamento') => $info->getCheckFormapagamento(),
-				Mage::helper('payment')->__('Forma de Pagamento') => utf8_encode("Boleto Bancário"),
-				Mage::helper('payment')->__('Segunda Via') => $info->getCheckBoletourl()
-			);
-
 			echo ("<table>
                                     <tbody>
                                         <tr>
@@ -51,11 +27,10 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
                                             </th>
                                         </tr>
                                         <tr>
-                                            <td><a href = '{$info->getCheckBoletourl()}'>Imprimir</a></td>
+                                            <td><a href = '{$info->getCheckBoletourl()}' target='_blank'>Imprimir</a></td>
                                         </tr>
                                     </tbody>
                                 </table>");
-		#	echo utf8_encode("<a href = '{$info->getCheckBoletourl()}'>Imprimir 2 via</a>");
 
 		}elseif($info->getCheckFormapagamento() == 'cartaodecredito'){
 			$checkBandCC = $info->getCheckCartaobandeira();
@@ -97,29 +72,15 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 				(Mage::helper('payment')->__('Bandeira do Cartão')) => ($cartao),
 				Mage::helper('payment')->__('Nome') => $info->getCheckNome(),
 				Mage::helper('payment')->__('Cpf') => $info->getCheckCpf(),
-				(Mage::helper('payment')->__('Numero do Cartão')) => $numCart,
-				#Mage::helper('payment')->__('Expiracao Mês') => $info->getCheckExpiracaomes(),
-				#Mage::helper('payment')->__('Check Expiracaoano') => $info->getCheckExpiracaoano(),
-
-				#Mage::helper('payment')->__('Check Codseguranca') => $info->getCheckCodseguranca()
+				(Mage::helper('payment')->__('Numero do Cartão')) => $numCart
 			);
 		}else{
 
 			$array = array(
-
 				Mage::helper('payment')->__('Bandeira') => $info->getCheckTefbandeira()
-
 			);
 		}
 
-                      /*Mage::helper('payment')->__('Check Cartaobandeira') => $info->getCheckCartaobandeira(),
-			Mage::helper('payment')->__('Check Nome') => $info->getCheckNome(),
-			Mage::helper('payment')->__('Check Cpf') => $info->getCheckCpf(),
-			Mage::helper('payment')->__('Check Numerocartao') => $info->getCheckNumerocartao(),
-			Mage::helper('payment')->__('Check Expiracaomes') => $info->getCheckExpiracaomes(),
-			Mage::helper('payment')->__('Check Expiracaoano') => $info->getCheckExpiracaoano(),
-			Mage::helper('payment')->__('Check Codseguranca') => $info->getCheckCodseguranca(),
-			Mage::helper('payment')->__('Check Tefbandeira') => $info->getCheckTefbandeira(),*/
 		$transport->addData($array);
 		return $transport;
 	}
