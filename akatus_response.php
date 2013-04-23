@@ -8,6 +8,7 @@ class StatusTransacaoAkatus
     const CANCELADO = 'Cancelado';
     const DEVOLVIDO = 'Devolvido';
     const COMPLETO = 'Completo';
+    const ESTORNADO = 'Estornado';
 }
 
 #instancia o Mage
@@ -117,6 +118,17 @@ function getNovoStatus($statusRecebido, $statusAtual)
 
             if (in_array($statusAtual, $listaStatus)) {
                 return Mage_Sales_Model_Order::STATE_CANCELED;                    
+            } else {
+                return false;
+            }
+
+	 case StatusTransacaoAkatus::ESTORNADO:
+            $listaStatus = array(
+                Mage_Sales_Model_Order::STATE_COMPLETE
+            );
+
+            if (in_array($statusAtual, $listaStatus)) {
+                return Mage_Sales_Model_Order::STATE_CANCELED;
             } else {
                 return false;
             }

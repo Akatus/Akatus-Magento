@@ -125,6 +125,16 @@
          </payment>
     </default>
 	
-	
+    <admin>
+        <routers>
+            <refund>
+                <use>admin</use>
+                <args>
+                    <module>Akatus_Akatus</module>
+                    <frontName>refund</frontName>
+                </args>
+            </refund>
+        </routers>
+    </admin>
 	
 </config>
