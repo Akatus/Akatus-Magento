@@ -19,12 +19,10 @@ $codigoTransacao    = $_POST["transacao_id"];
 $statusRecebido     = $_POST["status"];
 $tokenRecebido      = $_POST["token"];
 
-#faz a conferencia da transacao
-$tokenNIP = Mage::getStoreConfig('payment/akatus/tokennip');
+$order = getOrder($codigoTransacao);
+$tokenNIP = Mage::getStoreConfig('payment/akatus/tokennip', $order->getStoreId());
 
-//validao retorno
 if($tokenNIP == $tokenRecebido) {
-    $order = getOrder($codigoTransacao);
     $novoStatus = getNovoStatus($statusRecebido, $order->getStatus());
 
     if ($novoStatus) {
@@ -44,6 +42,7 @@ function getOrder($codigoTransacao)
     $mageRunCode = isset($_SERVER ['MAGE_RUN_CODE'] ) ? $_SERVER ['MAGE_RUN_CODE'] : '';
     $mageRunType = isset($_SERVER ['MAGE_RUN_TYPE'] ) ? $_SERVER ['MAGE_RUN_TYPE'] : 'store';
     Mage::app($mageRunCode, $mageRunType);
+
     $db = Mage::getSingleton('core/resource')->getConnection('core_write');        
 
     $retorno = $db->query("SELECT idpedido FROM akatus_transacoes WHERE codtransacao = '".$codigoTransacao."' ORDER BY id DESC");
