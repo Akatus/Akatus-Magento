@@ -101,7 +101,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
                                 </th>
                             </tr>
                             <tr>
-                                <td><a href ='$estornoURL'>Efetuar estorno</a></td>
+                                <td><a href ='$estornoURL'>Solicitar estorno</a></td>
                             </tr>
                         </tbody>
                     </table>");
