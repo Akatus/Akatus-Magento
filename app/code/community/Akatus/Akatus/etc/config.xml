@@ -108,7 +108,7 @@
             <akatus>
 				<!-- by default this payment method is inactive -->
                 <active>1</active>
-                <modo>PRODUCAO</modo>
+                <modo>SANDBOX</modo>
                 <numero_maximo_parcelas>12</numero_maximo_parcelas>
 				<!-- model to handle logic for this payment method -->
                 <model>akatus/pagar</model>
