@@ -49,13 +49,11 @@
     		 </sales_convert_quote_payment>
     	</fieldsets>
 
+        <blocks>
+            <akatus>
+                <class>Akatus_Akatus_Block</class>            
+            </akatus>
 
-
-    <blocks>
-        <akatus>
-            <class>Akatus_Akatus_Block</class>
-        </akatus>
-    </blocks>
  
 <!-- declare model group for new module -->
         <models>
@@ -127,13 +125,13 @@
 	
     <admin>
         <routers>
-            <refund>
+            <akatus>
                 <use>admin</use>
                 <args>
                     <module>Akatus_Akatus</module>
                     <frontName>akatus</frontName>
                 </args>
-            </refund>
+            </akatus>
         </routers>
     </admin>
 	
