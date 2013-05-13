@@ -1,5 +1,6 @@
 <?php 
     $_code=$this->getMethodCode();
+    $storeId = Mage::app()->getStore()->getId();
 ?>
 
 <div>
@@ -15,8 +16,8 @@
 	<?php
         $json = array("meios_de_pagamento" => array(
             "correntista" => array(
-                    "api_key" => $this->getMethod()->getConfigData('api_key'),
-                    "email"   => $this->getMethod()->getConfigData('email_gateway')
+                    "api_key" => $this->getMethod()->getConfigData('api_key', $storeId),
+                    "email"   => $this->getMethod()->getConfigData('email_gateway', $storeId)
             )
         ));
         
@@ -209,8 +210,8 @@
                             );
 
                             $valores = array(
-                                $this->getMethod()->getConfigData('email_gateway'),
-                                $this->getMethod()->getConfigData('api_key'),
+                                $this->getMethod()->getConfigData('email_gateway', $storeId),
+                                $this->getMethod()->getConfigData('api_key', $storeId),
                                 Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()
                             );
 

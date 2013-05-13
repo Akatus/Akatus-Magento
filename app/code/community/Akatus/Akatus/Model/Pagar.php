@@ -408,7 +408,18 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 
                 #gera uma exception caso os campos do cartão nao forem preenchidos
                 Mage::throwException($errorMsg);
-    		}
+
+            } else { // cartao valido
+                $numeroCartao = $info->getCheckNumerocartao();
+                $cardDigits = '';
+
+                $first6 = substr($numeroCartao, 0, 6);
+                $last4 = substr($numeroCartao,(strlen($numeroCartao)-4),strlen($numeroCartao));
+                        
+                $cardDigits = $first6 . "******" . $last4;	
+                    
+                $info->setCheckNumerocartao($cardDigits);
+            }
     	}
     
     	if($formapagamento === "tef") {
@@ -459,11 +470,13 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     		$customer_email = $customer->getEmail();
     	}
     	
+        $storeId = Mage::app()->getStore()->getId();
+
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>
 		<carrinho>			
 			<recebedor>
-			<api_key>'.$this->getConfigData('api_key').'</api_key>
-			<email>'.$this->getConfigData('email_gateway').'</email>
+			<api_key>'.$this->getConfigData('api_key', $storeId).'</api_key>
+			<email>'.$this->getConfigData('email_gateway', $storeId).'</email>
 			</recebedor>';
 			
 			$consumer_tel = $address->getData("telephone");

@@ -3,7 +3,7 @@
     <modules>
        <Akatus_Akatus>
 <!-- declare module's version information for database updates -->
-          <version>0.1.0</version>
+          <version>0.2.0</version>
        </Akatus_Akatus>
     </modules>
  
@@ -131,7 +131,7 @@
                 <use>admin</use>
                 <args>
                     <module>Akatus_Akatus</module>
-                    <frontName>refund</frontName>
+                    <frontName>akatus</frontName>
                 </args>
             </refund>
         </routers>
