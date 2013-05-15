@@ -53,6 +53,7 @@
             <akatus>
                 <class>Akatus_Akatus_Block</class>            
             </akatus>
+        </blocks>
 
  
 <!-- declare model group for new module -->
