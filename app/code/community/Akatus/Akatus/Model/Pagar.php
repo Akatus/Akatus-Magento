@@ -408,17 +408,6 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 
                 #gera uma exception caso os campos do cartão nao forem preenchidos
                 Mage::throwException($errorMsg);
-
-            } else { // cartao valido
-                $numeroCartao = $info->getCheckNumerocartao();
-                $cardDigits = '';
-
-                $first6 = substr($numeroCartao, 0, 6);
-                $last4 = substr($numeroCartao,(strlen($numeroCartao)-4),strlen($numeroCartao));
-                        
-                $cardDigits = $first6 . "******" . $last4;	
-                    
-                $info->setCheckNumerocartao($cardDigits);
             }
     	}
     
@@ -655,7 +644,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                         
                         
 		$xml.='</carrinho>';
-                
+
 		return $xml;
 	}
 
@@ -692,7 +681,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
             
 		} else {
 			if($resposta == "Em Análise"){
-				try {
+                try {
+                    $this->protectCardNumber($info);
                     $transacaoId = $data["resposta"]["transacao"]["value"];
                     $this->SalvaIdTransacao($orderId,$transacaoId);
 
@@ -754,5 +744,18 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 		$db = Mage::getSingleton('core/resource')->getConnection('core_write');	
 		$db->query("DELETE FROM akatus_transacoes WHERE idpedido='".$orderId."'");
 		$db->query("INSERT into akatus_transacoes (idpedido,codtransacao) VALUES('".$orderId."','".$transacaoId."')");
-	}
+    }
+
+    private function protectCardNumber($info)
+    {
+        $numeroCartao = $info->getCheckNumerocartao();
+        $cardDigits = '';
+
+        $first6 = substr($numeroCartao, 0, 6);
+        $last4 = substr($numeroCartao,(strlen($numeroCartao)-4),strlen($numeroCartao));
+                
+        $cardDigits = $first6 . "******" . $last4;	
+            
+        $info->setCheckNumerocartao($cardDigits);
+    }
 }
