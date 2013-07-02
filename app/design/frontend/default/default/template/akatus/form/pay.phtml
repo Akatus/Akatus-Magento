@@ -1,27 +1,23 @@
-<?php 
-    $_code=$this->getMethodCode();
-    $storeId = Mage::app()->getStore()->getId();
+<?php  
+	
+	$_code=$this->getMethodCode(); 
+	$hiddenbandeira = $_code."_check_cartaobandeira"; 
 ?>
 
 <div>
-    <?php
-        echo $this->getMethod()->getConfigData('message');
-        $hiddenbandeira = $_code."_check_cartaobandeira";
-    ?>
+	<?php echo $this->getMethod()->getConfigData('message'); ?>
 </div>
 
 <script src="<?php echo $this->getSkinUrl('akatus/jquery.js') ?>"></script>
 
-<ul class="form-list" id="payment_form_<?php echo $_code; ?>" style="display:block;">
-	<?php
-        $json = array("meios_de_pagamento" => array(
-            "correntista" => array(
-                    "api_key" => $this->getMethod()->getConfigData('api_key', $storeId),
-                    "email"   => $this->getMethod()->getConfigData('email_gateway', $storeId)
-            )
-        ));
-        
+<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:block;">
+	
+	<?php 
+
+		$json = array("meios_de_pagamento" => array("correntista"=>array("api_key"=>$this->getMethod()->getConfigData('api_key'), 
+																		"email"=>$this->getMethod()->getConfigData('email_gateway'))));
 		$toJson = json_encode($json);
+
 		$url = $this->getMeiosPagamentoUrl();
 		
 		$curl = curl_init();
@@ -39,277 +35,301 @@
 		curl_close($curl);
 		
 		$retornoArray = json_decode($retJson);
+		
 		$meios = $retornoArray->resposta->meios_de_pagamento;
+	?>
 
-		foreach($meios as $meiopagamento) {		
+    <?php if(is_array($meios)): ?>
 
-		if ($meiopagamento->descricao == "Cartão de Crédito") {
-				echo "<li>
-					  <input onClick='ffCartaodeCredito();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
-					  <span>".$meiopagamento->descricao.'</span>'; ?>
+        <?php foreach($meios as $meiopagamento): ?>		
 
-					  <div style="position: relative; margin-top: 30px; display: none;" id="cc" name="cc">
-					  	<sup class="required-sup-info"><span>*</span> campos obrigatórios</sup>
+            <?php if ( $meiopagamento->descricao == "Cartão de Crédito" ): ?>
+                    <?php Mage::Log("Mostrar Cartões"); ?>
+                    
+                    <li>
+                        <input onClick='ffCartaodeCredito();' type='radio' value="<?php echo $meiopagamento->descricao; ?>" name='forma' id='forma'>
+                        <span><?php echo $meiopagamento->descricao;?></span>
 
-						<style>
-							#tablePay td { vertical-align:middle; }
-							#tablePay td { padding-bottom:2px; }
-							.cc_inactive { border:1px solid #F0F1F1; margin-right:2px; cursor:pointer; margin-bottom:8px; }
-							.cc_active { border:1px solid #CCCDCE; margin-right:2px; cursor:pointer; margin-bottom:8px; }
-							.cc_active.last { margin-right:0 !important; }
-							.cc_inactive.last { margin-right:0 !important; }
-							#tablePay .validation-advice { margin:0; }
-							#tablePay .input-text { width:230px; }
-							#tablePay td.label { padding-right:10px; }
-							#cc_bandeiras img{
-								width: 45px;
-								margin-right: 0 !important;
-							}
-							#cc_bandeiras img.cc_inactive{
-								border-color: #FFF;
-							}
+                          <div style="position: relative; margin-top: 30px; display: none;" id="cc" name="cc">
+                            <sup class="required-sup-info"><span>*</span> campos obrigatórios</sup>
+
+                            <style>
+                                #tablePay td { vertical-align:middle; }
+                                #tablePay td { padding-bottom:2px; }
+                                .cc_inactive { border:1px solid #F0F1F1; margin-right:2px; cursor:pointer; margin-bottom:8px; }
+                                .cc_active { border:1px solid #CCCDCE; margin-right:2px; cursor:pointer; margin-bottom:8px; }
+                                .cc_active.last { margin-right:0 !important; }
+                                .cc_inactive.last { margin-right:0 !important; }
+                                #tablePay .validation-advice { margin:0; }
+                                #tablePay .input-text { width:230px; }
+                                #tablePay td.label { padding-right:10px; }
+                                #cc_bandeiras img{
+                                    width: 45px;
+                                    margin-right: 0 !important;
+                                }
+                                #cc_bandeiras img.cc_inactive{
+                                    border-color: #FFF;
+                                }
 
 
-							a, #overlink{
-								text-decoration:none;
-								color:#f30;	
-							}
-							p{
-								clear:both;
-								margin:0;
-								padding:.5em 0;
-							}
-							pre{
-								display:block;
-								font:100% "Courier New", Courier, monospace;
-								padding:10px;
-								border:1px solid #bae2f0;
-								background:#e3f4f9;	
-								margin:.5em 0;
-								overflow:auto;
-								width:800px;
-							}
+                                a, #overlink{
+                                    text-decoration:none;
+                                    color:#f30;	
+                                }
+                                p{
+                                    clear:both;
+                                    margin:0;
+                                    padding:.5em 0;
+                                }
+                                pre{
+                                    display:block;
+                                    font:100% "Courier New", Courier, monospace;
+                                    padding:10px;
+                                    border:1px solid #bae2f0;
+                                    background:#e3f4f9;	
+                                    margin:.5em 0;
+                                    overflow:auto;
+                                    width:800px;
+                                }
 
-							#tipsimg{border:none;word-wrap: normal; width: 250px;  }
-							#tipsul, #tipsli{
-								margin:0;
-								padding:0;
-							}
-							#tipsli{
-								list-style:none;
-								float:left;
-								display:inline;
-								margin-right:10px;
-							}
+                                #tipsimg{border:none;word-wrap: normal; width: 250px;  }
+                                #tipsul, #tipsli{
+                                    margin:0;
+                                    padding:0;
+                                }
+                                #tipsli{
+                                    list-style:none;
+                                    float:left;
+                                    display:inline;
+                                    margin-right:10px;
+                                }
 
-							#preview{
-								position:absolute;
-								border:1px solid #ccc;
-								background:#333;
-								padding:5px;
-								display:none;
-								color:#fff;
-								width:249px;
-								line-height: 17px;
-							}
+                                #preview{
+                                    position:absolute;
+                                    border:1px solid #ccc;
+                                    background:#333;
+                                    padding:5px;
+                                    display:none;
+                                    color:#fff;
+                                    width:249px;
+                                    line-height: 17px;
+                                }
 
-                            .form-list label {
-                                float: none;
-                            }
+                                .form-list label {
+                                    float: none;
+                                }
 
-						</style>
-						<div id="tablePay">
-							<div class="full">
-								<label class="required"><sup>*</sup> Nome no cartão</label>
-								<div class="data_area">
-								<input type="text" title="<?php echo $this->__('Check Nome:') ?>" class="input-text required-entry" id="<?php echo $_code ?>_check_nome" name="payment[check_nome]" value="<?php echo $this->htmlEscape($this->getInfoData('check_nome')) ?>" />
-								</div>
-							</div>							
-							<div class="full">
-								<label class="required"><sup>*</sup> CPF do proprietário do cartão</label>
-								<div class="data_area">
-									<input title="<?php echo $this->__('Check CPF:') ?>" type="text" size="19" name="payment[check_cpf]" id="<?php echo $_code ?>_check_cpf" class="input-text required-entry" >
-								</div>
-							</div>							
-							<div class="full">
-								<label class="required"><sup>*</sup> Número do cartão de crédito</label>
-								<div class="data_area">
-									<input title="<?php echo $this->__('Check Numerocartao:') ?>" type="text" maxlength="16" size="16" name="payment[check_numerocartao]" id="<?php echo $_code ?>_check_cartaocredito" onblur="isCreditCard(this.value);" class="input-text required-entry" >
-								</div>
-							</div>
-							<div class="full" id='cc_bandeiras'>
-							<?php
-								$bandeiras=$meiopagamento->bandeiras;
+                            </style>
+                            <div id="tablePay">
+                                <div class="full">
+                                    <label class="required"><sup>*</sup> Nome no cartão</label>
+                                    <div class="data_area">
+                                    <input type="text" title="<?php echo $this->__('Check Nome:') ?>" class="input-text required-entry" id="<?php echo $_code ?>_check_nome" name="payment[check_nome]" value="<?php echo $this->htmlEscape($this->getInfoData('check_nome')) ?>" />
+                                    </div>
+                                </div>							
+                                <div class="full">
+                                    <label class="required"><sup>*</sup> CPF do proprietário do cartão</label>
+                                    <div class="data_area">
+                                        <input title="<?php echo $this->__('Check CPF:') ?>" type="text" size="19" name="payment[check_cpf]" id="<?php echo $_code ?>_check_cpf" class="input-text required-entry" >
+                                    </div>
+                                </div>							
+                                <div class="full">
+                                    <label class="required"><sup>*</sup> Número do cartão de crédito</label>
+                                    <div class="data_area">
+                                        <input title="<?php echo $this->__('Check Numerocartao:') ?>" type="text" maxlength="16" size="16" name="payment[check_numerocartao]" id="<?php echo $_code ?>_check_cartaocredito" onblur="isCreditCard(this.value);" class="input-text required-entry" >
+                                    </div>
+                                </div>
+                                
+                                <div class="full" id='cc_bandeiras'>
+                                    <?php $bandeiras=$meiopagamento->bandeiras; ?>
 
-								foreach($bandeiras as $bandeira){
+                                    <?php foreach($bandeiras as $bandeira): ?>
 
-									echo "<img id = 'cc_".$bandeira->codigo."' src = '".$this->getSkinUrl('cartoes-colorido/') . $bandeira->codigo.".png' class = 'cc_inactive";
-									//if($i == $count): echo " last"; endif;
-									 echo "' onclick = 'selectBandeira29(this.id);'/>";
-								}
-							?>
-							<div>
-	                     <input type="hidden" title="<?php echo $this->__('Check Cartaobandeira:') ?>" name="payment[check_cartaobandeira]" id="<?php echo $hiddenbandeira;?>" class="input-text required-entry" />
-								</div>
-							</div>							
-							<div class="two_fields">
-								<label class="required"><sup>*</sup> Data de vencimento</label>
-								<div class='clr'></div>
-								<div class="short">
-									<select title="<?php echo $this->__('Check Expiracaomes:') ?>" value="" maxlength="2" size="1" style="width:60px" name="payment[check_expiracaomes]" id="<?php echo $_code ?>_check_expiracaomes" class="input-text required-entry">
-										<option value="">Mês</option>
-										<option value="01">01</option>
-										<option value="02">02</option>
-										<option value="03">03</option>
-										<option value="04">04</option>
-										<option value="05">05</option>
-										<option value="06">06</option>
-										<option value="07">07</option>
-										<option value="08">08</option>
-										<option value="09">09</option>
-										<option value="10">10</option>
-										<option value="11">11</option>
-										<option value="12">12</option>
-									</select> 
-									/									
-									<select type="text" title="<?php echo $this->__('Check Expiracaoano:') ?>" style="width:60px" value="" maxlength="2" size="1" name="payment[check_expiracaoano]" id="<?php echo $_code ?>_check_expiracaoano" class="input-text required-entry">
-											<option value="">Ano</option>
-											<option value="12">12</option>
-											<option value="13">13</option>
-											<option value="14">14</option>
-											<option value="15">15</option>
-											<option value="16">16</option>
-											<option value="17">17</option>
-											<option value="18">18</option>
-											<option value="19">19</option>
-											<option value="20">20</option>
-											<option value="21">21</option>
-										</select>
-									</div>
-								</div>
-								<div class='clr'></div><br>
-								<div class="full secure-code">
-									<label class="required"><sup>*</sup> Código de Segurança</label>
-									<div class='clr'></div>
+                                        <?php echo "<img id = 'cc_".$bandeira->codigo."' src = '".$this->getSkinUrl('cartoes-colorido/') . $bandeira->codigo.".png' class = 'cc_inactive"; ?>
+                                        <?php echo "' onclick = 'selectBandeira29(this.id);'/>"; ?>
+                                        
+                                    <?php endforeach; ?>
+                                
+                                    <div>
+                                        <input type="hidden" title="<?php echo $this->__('Check Cartaobandeira:') ?>" name="payment[check_cartaobandeira]" id="<?php echo $hiddenbandeira;?>" class="input-text required-entry" />
+                                    </div>
+                                </div>							
+                                
+                                <div class="two_fields">
+                                    <label class="required"><sup>*</sup> Data de vencimento</label>
+                                    <div class='clr'></div>
+                                    <div class="short">
+                                        <select title="<?php echo $this->__('Check Expiracaomes:') ?>" value="" maxlength="2" size="1" style="width:60px" name="payment[check_expiracaomes]" id="<?php echo $_code ?>_check_expiracaomes" class="input-text required-entry">
+                                            <option value="">Mês</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                            <option value="09">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                        </select> 
+                                        /									
+                                        <select type="text" title="<?php echo $this->__('Check Expiracaoano:') ?>" style="width:60px" value="" maxlength="2" size="1" name="payment[check_expiracaoano]" id="<?php echo $_code ?>_check_expiracaoano" class="input-text required-entry">
+                                                <option value="">Ano</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                                <option value="20">20</option>
+                                                <option value="21">21</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class='clr'></div><br>
+                                
+                                <div class="full secure-code">
+                                    <label class="required"><sup>*</sup> Código de Segurança</label>
+                                
+                                    <div class='clr'></div>
 
-									<input type="text" title="<?php echo $this->__('Check Codseguranca:') ?>" size="1" maxlength="4" style="width:30px !important; margin-right: 5px;" name="payment[check_codseguranca]" id="<?php echo $_code ?>_check_codseguranca" class="input-text required-entry">
-										<ul id="tipsul" style="float: left;">
-											<li id="tipsli" onMouseover="javascript:imagePreview();"><a onClick="return false;" id="overlink" href="<?php echo $this->getSkinUrl('cvv/')."cvv.jpg";?>" class="preview" title="Esse é o codigo de segurança.">O que é isso?</a></li>
-										</ul>
-								</div><br>
-								<div class='clr'></div>								
-								<div class="full">
-								<label class="required"><sup>*</sup> Número de parcelas</label>
+                                    <input type="text" title="<?php echo $this->__('Check Codseguranca:') ?>" size="1" maxlength="4" style="width:30px !important; margin-right: 5px;" name="payment[check_codseguranca]" id="<?php echo $_code ?>_check_codseguranca" class="input-text required-entry">
+                                    <ul id="tipsul" style="float: left;">
+                                        <li id="tipsli" onMouseover="javascript:imagePreview();"><a onClick="return false;" id="overlink" href="<?php echo $this->getSkinUrl('cvv/')."cvv.jpg";?>" class="preview" title="Esse é o codigo de segurança.">O que é isso?</a></li>
+                                    </ul>
+                                    </div>
 
-	                        <?php
+                                    <br>
+                                    
+                                    <div class='clr'></div>								
+                                    
+                                    <div class="full">
+                                    <label class="required"><sup>*</sup> Número de parcelas</label>
 
-                            $tokens = array(
-                                '{EMAIL}',
-                                '{API_KEY}',
-                                '{AMOUNT}'
-                            );
+                                    <?php
 
-                            $valores = array(
-                                $this->getMethod()->getConfigData('email_gateway', $storeId),
-                                $this->getMethod()->getConfigData('api_key', $storeId),
-                                Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()
-                            );
+                                        $tokens = array(
+                                            '{EMAIL}',
+                                            '{API_KEY}',
+                                            '{AMOUNT}'
+                                        );
 
-                            $preUrl = $this->getParcelamentoUrl();
-                            $url = str_replace($tokens, $valores, $preUrl);
-                            
-	                        $curl2 = curl_init($url);
-	                        curl_setopt($curl2, CURLOPT_SSL_VERIFYPEER, false);
-	                        curl_setopt($curl2, CURLOPT_POST, false);
-	                        curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);
-	                        $ret = curl_exec($curl2);
-	                        curl_close($curl2);
+                                        $valores = array(
+                                            $this->getMethod()->getConfigData('email_gateway'),
+                                            $this->getMethod()->getConfigData('api_key'),
+                                            Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal()
+                                        );
 
-	                        $totalParcelas = json_decode($ret, true);
-                            $totalParcelas['resposta']['parcelas'] = array_slice($totalParcelas['resposta']['parcelas'], 0, $this->getMethod()->getConfigData('numero_maximo_parcelas'));
-                            
-	                        $juros =  str_replace("% ao mês","", $totalParcelas["resposta"]["descricao"]);
-	                        $parcelasAssumidas = $totalParcelas["resposta"]["parcelas_assumidas"];
+                                        $preUrl = $this->getParcelamentoUrl();
+                                        $url = str_replace($tokens, $valores, $preUrl);
+                                        
+                                        $curl2 = curl_init($url);
+                                        curl_setopt($curl2, CURLOPT_SSL_VERIFYPEER, false);
+                                        curl_setopt($curl2, CURLOPT_POST, false);
+                                        curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);
+                                        $ret = curl_exec($curl2);
+                                        $err = curl_error($curl2);
+                                        curl_close($curl2);
 
-	                        if(! empty($totalParcelas['resposta']['parcelas'])){ ?>
+                                        $parcelamentos = json_decode($ret, true);
 
-	                           <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
-                               <?php
+                                        $juros1 =  str_replace("% ao mês","", $parcelamentos["resposta"]["descricao"]);
+                                        $juros  = str_replace(",",".",$juros1);
+                                        $parcelasAssumidas = $parcelamentos["resposta"]["parcelas_assumidas"];
+                                    ?>
 
-                              	$i =1;
-                               foreach($totalParcelas["resposta"]["parcelas"] as $parcelas){
+                                    <?php if(!empty($parcelamentos['resposta']['parcelas'])): ?>
 
-                                       if($i > 1 && $i > $parcelasAssumidas){
-                                           $jurosdisclaimer = "(".$juros."% a.m)";
-                                       } else {
-                                           $jurosdisclaimer = " sem juros";
-                                       }
+                                       <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
+                                       
+                                       <?php
 
-                                       $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
+                                        $i =1;
+                                       foreach($parcelamentos["resposta"]["parcelas"] as $parcelas){
 
-										if($parcelas['valor'] < 5 && $jurosdisclaimer != " sem juros")
-											continue;
+                                               if($i > 1 && $i > $parcelamentos["resposta"]["parcelas_assumidas"]){
+                                                   $jurosdisclaimer = "(".$juros1."% a.m)";
+                                               } else {
+                                                   $jurosdisclaimer = " sem juros";
+                                               }
 
-                                       echo "<option value = '{$i}'>{$i}x de R$ {$valorParcelaFinal} ".$jurosdisclaimer."</option>";
+                                               $valorParcelaFinal = number_format($parcelas['valor'], 2, ",", ".");
+                                               $valorTotalFinal   = number_format($parcelas['total'], 2, ",", ".");
 
-                                       $i++;
+                                                if ($parcelas['valor'] < 5 && $jurosdisclaimer != " sem juros") {
+                                                    continue;
+                                                }
+                                                    
 
-                               } ?>
-	                            </select>
-	                        <? } else { ?>
-	                           <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
-                                   <option value = '1'>1x de R$ <?= number_format(Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal(), 2, ",", ".")?></option>";
-								</select>
-                           <? } ?>
-						</div><br>						
-						</div>
-					  </div>
-			
-		<?php
-			
-			} 
 
-			if( $meiopagamento->descricao=="TEF"){
-				echo "<li>
-						<input onClick='ffTef();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
-						<span>Débito Online</span>"; ?>
-				
-				<div style="display:none" id="tef" name="tef">       
-					
-					<table id="tablePay" cellspacing="5" style = 'margin-top:10px; '>
-						<tbody>
-							<tr>
-								<td style = 'width:60px'>Bandeira</td>
-								<td>
-									<label>
-										<select  title="<?php echo $this->__('Check Tefbandeira:') ?>" style="width:250px;" name="payment[check_tefbandeira]" id="<?php echo $_code ?>_check_tefbandeira" class="input-text required-entry">
-										<?php 
-										$bandeiras= $meiopagamento->bandeiras ;
-										foreach($bandeiras as $bandeira){
-											$labels = explode("-",$bandeira->descricao);
-										 ?>
-										  <option value="<?php echo $bandeira->codigo; ?>"><?php echo "Débito via ".$labels[1]; ?></option>
-										<?php } ?>
-										</select>
-									</label>
-								</td>
-							</tr>  
-						</tbody>
-					</table> 						
-				</div>	
-		<?php 
-			
-			} 
+                                               echo "<option value = '{$i}'>{$i}x de R$ {$valorParcelaFinal} ".$jurosdisclaimer."</option>";
 
-			if($meiopagamento->descricao=="Boleto Bancário"){
-				echo "<li>
-					  <input onClick='ffBoletoAkatus();' type='radio' value='boleto' name='forma' id='forma'>
-					  <span>".$meiopagamento->descricao.'</span>';			
-			} 		
-			echo "</li>";	
-		}/// fim do foreach	
-	
-	?>	            
+                                               $i++;
+
+                                       } 
+                                       ?>
+                                        </select>
+                                    <?php else: ?>
+                                   <select title="<?php echo $this->__('Check Parcelamento:') ?>" name="payment[check_parcelamento]" id="<?php echo $_code ?>_check_parcelamento" class="input-text required-entry">
+                                       <option value = '1'>1x de R$ <?= number_format(Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal(), 2, ",", ".")?></option>";
+                                    </select>
+                               <?php endif; ?>
+                            </div><br>						
+                            </div>
+                          </div>
+                
+            <?php endif; ?>
+                
+            <?php if( $meiopagamento->descricao=="TEF"): ?>
+                <?php Mage::Log("Mostrar TEF");?>
+                    
+                <?php echo "<li>
+                            <input onClick='ffTef();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
+                            <span>Débito Online</span>"; ?>
+                    
+                    <div style="display:none" id="tef" name="tef">       
+                        
+                        <table id="tablePay" cellspacing="5" style = 'margin-top:10px; '>
+                            <tbody>
+                                <tr>
+                                    <td style = 'width:60px'>Bandeira</td>
+                                    <td>
+                                        <label>
+                                            <select  title="<?php echo $this->__('Check Tefbandeira:') ?>" style="width:250px;" name="payment[check_tefbandeira]" id="<?php echo $_code ?>_check_tefbandeira" class="input-text required-entry">
+                                            <?php $bandeiras= $meiopagamento->bandeiras ; ?>
+                                            <?php foreach($bandeiras as $bandeira): ?>
+                                                <?php $labels = explode("-",$bandeira->descricao); ?>
+                                              <option value="<?php echo $bandeira->codigo; ?>"><?php echo "Débito via ".$labels[1]; ?></option>
+                                            <?php endforeach; ?>
+                                            </select>
+                                        </label>
+                                    </td>
+                                </tr>  
+                            </tbody>
+                        </table> 						
+                    </div>	
+            <?php endif; ?>
+            
+            <?php if($meiopagamento->descricao=="Boleto Bancário"): ?>
+                <?php Mage::Log("Mostrar boleto"); ?>
+                <?php echo "<li>
+                          <input onClick='ffBoletoAkatus();' type='radio' value='boleto' name='forma' id='forma'>
+                          <span>".$meiopagamento->descricao.'</span>'; ?>
+            <?php endif; ?> 		
+                
+            <?php echo "</li>";	?>
+        <?php endforeach; ?>
+    <?php else: ?>
+
+        <?php echo "Nenhum meio de pagamento habilitado." ?>
+
+    <?php endif; ?>
+
  <input title="<?php echo $this->__('Check Formapagamento:') ?>" name="payment[check_formapagamento]" type="hidden" id="<?php echo $_code ?>_check_formapagamento" value="" />
 
 </ul>
