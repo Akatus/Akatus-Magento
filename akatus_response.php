@@ -26,14 +26,20 @@ if($tokenNIP == $tokenRecebido) {
     $novoStatus = getNovoStatus($statusRecebido, $order->getStatus());
 
     if ($novoStatus) {
-        $order->setStatus($novoStatus);
-        $order->save();
 
-        if($statusRecebido == StatusTransacaoAkatus::APROVADO && $order->canInvoice()) {
-            $invoiceId = Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), array());
-            $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId($invoiceId);
-            $invoice->capture()->save();            
+        if($statusRecebido == StatusTransacaoAkatus::APROVADO && $order->getTotalPaid() == 0) {
+            $invoice = $order->prepareInvoice();
+            $invoice->register()->capture();            
+            Mage::getModel('core/resource_transaction')
+                ->addObject($order)
+                ->addObject($invoice->getOrder())
+                ->save();
+
         }
+
+        $orderToUpdateStatus = Mage::getModel('sales/order')->load($order->getId());   
+        $orderToUpdateStatus->setStatus($novoStatus);
+        Mage::getModel('core/resource_transaction')->addObject($orderToUpdateStatus)->save();
     }
 }
 
