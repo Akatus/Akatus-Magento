@@ -1,20 +1,6 @@
 <?php
-/**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * @category   Mage
- * @package    Akatus
- * @copyright  Copyright (c) 2008 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
-
 
 $installer = $this;
-/* @var $installer Akatus_Model_Mysql4_Setup */
-
-//print_r($installer->getTable('sales/order'));
 
 $installer->startSetup();
 

@@ -2,8 +2,7 @@
 <config>
     <modules>
        <Akatus_Akatus>
-<!-- declare module's version information for database updates -->
-          <version>0.2.0</version>
+          <version>1.3.2</version>
        </Akatus_Akatus>
     </modules>
  
