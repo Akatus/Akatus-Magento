@@ -27,7 +27,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     protected $_canUseCheckout          = true;
     protected $_canUseForMultishipping  = true;
     protected $_canSaveCc               = false;
-  
+    protected $_isInitializeNeeded      = true;
+
     function isTelephoneValid($tel){
         $valid = true;
 
@@ -248,7 +249,24 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 
         return $isCpfValid;					
     }
-    
+
+    public function initialize($paymentAction, $stateObject)
+    {
+        $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+        $stateObject->setState($state);
+        $stateObject->setStatus($state);
+        $stateObject->setIsNotified(false);
+        $order = $this->getInfoInstance()->getOrder();
+
+        Mage::getModel('core/resource_transaction')
+            ->addObject($order)
+            ->save();
+
+        $xml_gateway = $this->gerarXML($order);
+
+		return $this->enviaGateway($order, $xml_gateway);
+    }
+
     public function assignData($data) {
         if (! ($data instanceof Varien_Object)) {
     		$data = new Varien_Object($data);
@@ -420,22 +438,12 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                 Mage::throwException($errorMsg);
     		}
     	}
-    	    	
+
     	return $this;
     }    
 	
-	public function authorize(Varien_Object $payment, $amount) {
-		$xml_gateway = $this->gerarXML($payment);
-
-		#envia ao gateway as informacoes de pagamento
-		return $this->enviaGateway($payment, $xml_gateway);
-	}
-	
-	public function gerarXML(Varien_Object $payment) {
+	public function gerarXML($order) {
 		$xml = "";
-		
-		$orderId = $payment->getParentId();
-		$order = Mage::getModel('sales/order')->load($orderId);
         $incrementId = $order->getIncrementId();
                 
 		$customer = Mage::getSingleton('customer/session')->getCustomer();
@@ -648,8 +656,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 		return $xml;
 	}
 
-	public function enviaGateway(Varien_Object $payment, $xml) {
-		$orderId = $payment->getParentId();
+	public function enviaGateway($order, $xml) {
+		$orderId = $order->getId();
 		
 		$url = Akatus_Akatus_Helper_Data::getCarrinhoUrl();
 
@@ -676,40 +684,52 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
         $resposta = $data["resposta"]["status"]["value"];
 		 
 		if($resposta == "erro") {
-            Mage::Log('Um erro ocorreu na transação: '.$data["resposta"]["descricao"]["value"]);
-			Mage::throwException("Não foi possível realizar sua transação");
+
+            $stateAndStatus = Mage_Sales_Model_Order::STATE_CANCELED;
+            $order->setState($stateAndStatus, $stateAndStatus);
+            $order->setStatus($stateAndStatus);
+            $order->save();
+
+            Mage::Log('Um erro ocorreu ao efetuar transação: '.$data["resposta"]["descricao"]["value"]);
+			Mage::throwException("Não foi possível realizar a transação.");
             
 		} else {
 			if($resposta == "Em Análise"){
+
                 try {
                     $this->protectCardNumber($info);
                     $transacaoId = $data["resposta"]["transacao"]["value"];
                     $this->SalvaIdTransacao($orderId,$transacaoId);
 
-                    $order = Mage::getModel('sales/order')->load($orderId);
-                    $order->setStatus('pending_payment');
+                    $stateAndStatus = Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW;
+                    $order->setState($stateAndStatus, $stateAndStatus);
+                    $order->setStatus($stateAndStatus);
                     $order->save();
                     
-                    $msg = "Seu pedido foi realizado com sucesso. Estamos aguardando a confirmação de sua administradora e assim que o pagamento for liberado enviaremos o produto";
+                    $msg = "Seu pedido foi realizado com sucesso. Estamos aguardando a confirmação de sua administradora e assim que o pagamento for liberado enviaremos o produto.";
                     Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
                     
 				} catch (Exception $e){
-					$e->getMessage();
+                    Mage::Log($e->getMessage());
 				}
 
 			} else if ($resposta == "Aguardando Pagamento" || $resposta == "Processando"){
+
 				$info = $this->getInfoInstance();
 				$formapagamento = $info->getCheckFormapagamento();
                 $url_base = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
 				
 				if ($formapagamento == "boleto") {
+
 					$url_destino = Akatus_Akatus_Helper_Data::getBoletoUrl();
 					$str = $data['resposta']['transacao']['value'];
 					$url_destino .= base64_encode($str).'.html';
 					
-					$payment->setCheckBoletourl($url_destino);
-					$payment->save();	
-					
+					$order->setCheckBoletourl($url_destino);
+
+#                    $order->setStatus(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT);
+#                    $order->save();
+				
 					$transacaoId = $data["resposta"]["transacao"]["value"];
 					$this->SalvaIdTransacao($orderId, $transacaoId);
 					
@@ -720,10 +740,14 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				}
 				
 				if ($formapagamento=="tef") {
+
 					$url_destino = Akatus_Akatus_Helper_Data::getTefUrl();
 					$str = $data['resposta']['transacao']['value'];
 					$url_destino .= base64_encode($str).'.html';
 					
+#                    $order->setStatus(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT);
+#                    $order->save();
+
 					$transacaoId = $data["resposta"]["transacao"]["value"];
 					$this->SalvaIdTransacao($orderId, $transacaoId);
 					
@@ -734,7 +758,17 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				}	
                 
 			} else {
-                  Mage::throwException("Pagamento não autorizado. Consulte sua operadora para maiores informações.");
+
+                $stateAndStatus = Mage_Sales_Model_Order::STATE_CANCELED;
+                $order->setState($stateAndStatus, $stateAndStatus, 'Pagamento não autorizado pela operadora de cartão de crédito');
+                $order->setStatus($stateAndStatus);
+                Mage::getModel('core/resource_transaction')
+                    ->addObject($info)
+                    ->addObject($order)
+                    ->save();
+
+				Mage::Log('Pagamento não autorizado. ID do pedido: ' . $order->getId());
+                Mage::throwException("Pagamento não autorizado.\nConsulte a operadora do seu cartão de crédito para maiores informações.");
 			}
 		}
 	}

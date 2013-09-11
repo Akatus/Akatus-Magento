@@ -13,7 +13,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 		$info = $this->getInfo();
 		$transport = new Varien_Object();
 		$transport = parent::_prepareSpecificInformation($transport);
-	
+
     	if ($info->getCheckFormapagamento() == 'boleto') {
 			echo ("<table>
                         <tbody>

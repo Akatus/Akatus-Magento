@@ -28,9 +28,6 @@
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $toJson);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		$retJson = curl_exec($curl);
-		$errJson = curl_error($curl);
-
-		Mage::Log("Erro de cURL:". $errJson);
 
 		curl_close($curl);
 		
@@ -44,7 +41,6 @@
         <?php foreach($meios as $meiopagamento): ?>		
 
             <?php if ( $meiopagamento->descricao == "Cartão de Crédito" ): ?>
-                    <?php Mage::Log("Mostrar Cartões"); ?>
                     
                     <li>
                         <input onClick='ffCartaodeCredito();' type='radio' value="<?php echo $meiopagamento->descricao; ?>" name='forma' id='forma'>
@@ -286,8 +282,6 @@
             <?php endif; ?>
                 
             <?php if( $meiopagamento->descricao=="TEF"): ?>
-                <?php Mage::Log("Mostrar TEF");?>
-                    
                 <?php echo "<li>
                             <input onClick='ffTef();' type='radio' value='".$meiopagamento->descricao."' name='forma' id='forma'>
                             <span>Débito Online</span>"; ?>
@@ -316,7 +310,6 @@
             <?php endif; ?>
             
             <?php if($meiopagamento->descricao=="Boleto Bancário"): ?>
-                <?php Mage::Log("Mostrar boleto"); ?>
                 <?php echo "<li>
                           <input onClick='ffBoletoAkatus();' type='radio' value='boleto' name='forma' id='forma'>
                           <span>".$meiopagamento->descricao.'</span>'; ?>
