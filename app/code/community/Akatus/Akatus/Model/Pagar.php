@@ -646,7 +646,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                     <moeda>BRL</moeda>
                     <frete>'.$transacao_freteTotal.'</frete> 
                     <desconto>'.$transacao_descontoTotal.'</desconto>
-                    <peso_total>'.$transacao_pesoTotal.'</peso_total> 
+                    <peso>'.$transacao_pesoTotal.'</peso> 
                     <referencia>'.$incrementId.'</referencia>				
                 </transacao>';
                         
