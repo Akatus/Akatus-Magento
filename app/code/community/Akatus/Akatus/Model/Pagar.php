@@ -485,15 +485,6 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 				<nome>'.$customer_nome.'</nome>
 				<email>'.$customer_email.'</email>';
 
-            Mage::Log("logradouro: ".$address->getData("street"));
-            Mage::Log("numero:");
-            Mage::Log("complemento: ");
-            Mage::Log("bairro: ");
-            Mage::Log("cidade: ".$address->getData("city"));
-            Mage::Log("estado: ".$this->stringToUf($address->getData("region")));
-            Mage::Log("país: ".$address->getData("country_id"));
-            Mage::Log("cep: ".$address->getData("postcode"));    
-
             $logradouro = $address->getData("street");
             $numero = "0";
             $complemento = "Não Informado";
@@ -553,10 +544,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                 $cod              = str_replace("-","",$item->getSku());
 
                 $preco_item = number_format($item->getPrice(), 2, '', '');
-                Mage::Log('produto>>preco: '.$preco_item);
-
                 $peso_item = number_format($item->getWeight(), 2, '', '');
-                Mage::Log('produto>>peso: '.$peso_item);
 
                 $xml .='<produto>
                             <codigo>'.$cod.'</codigo>
@@ -567,25 +555,12 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                             <frete>0</frete>
                             <desconto>0</desconto>
                         </produto>';
-
-                Mage::Log('SKU:'.$item->getSku());
-                Mage::Log('descricao(item->getName()):'.$item->getName());
-                Mage::Log('quantidade (item->getQtyToInvoice()):'.$item->getQtyToInvoice());
-                Mage::Log('preco (item->getPrice()):'.$item->getPrice());
-                Mage::Log('peso (item->getWeight()):'.$item->getWeight());
-                Mage::Log('frete:'.number_format((($order->base_shipping_incl_tax/$order->total_item_count)/$item->getQtyToInvoice()), 2,'',''));
-                Mage::Log('desconto (item->discount_amount):'.$item->discount_amount);
-                Mage::Log('desconto (item->discount_percent):'.$item->discount_percent);
-                Mage::Log('desconto carrinho (order->discount_amount):'.$order->discount_amount);
-                Mage::Log('grand_amount:');
             }
 
             $descontoTotal = abs(number_format($order->discount_amount,'2','.',''));
 
             $_totalData =$order->getData();
             $_grand = number_format($_totalData['grand_total'],2,'.', '');
-            Mage::Log('grand_amount:'.$_grand);
-            Mage::Log('precototal:'.$valorTotal);
 
             if(empty($_grand)) {
                  $_grand = number_format($valorTotal-$descontoTotal, 2, '.', '');
@@ -630,13 +605,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 			}
 			
 			$transacao_freteTotal = number_format($order->base_shipping_incl_tax, 2, '.', '');
-            Mage::Log('transacao>>frete:'.$transacao_freteTotal);
-			
             $transacao_descontoTotal = number_format($descontoTotal, 2, '.', '');
-            Mage::Log('transacao>>desconto: '.$transacao_descontoTotal); 
-                        
             $transacao_pesoTotal = number_format($pesoTotal, 2, '.', '');
-            Mage::Log('transacao>>peso: '.$transacao_pesoTotal); 
 
             $xml.='
                 <!-- Transacao -->
