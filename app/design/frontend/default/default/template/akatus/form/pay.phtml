@@ -234,6 +234,8 @@
 
                                         $parcelamentos = json_decode($ret, true);
 
+                                        $parcelamentos['resposta']['parcelas'] = array_slice($parcelamentos['resposta']['parcelas'], 0, $this->getMethod()->getConfigData('numero_maximo_parcelas'));
+
                                         $juros1 =  str_replace("% ao mês","", $parcelamentos["resposta"]["descricao"]);
                                         $juros  = str_replace(",",".",$juros1);
                                         $parcelasAssumidas = $parcelamentos["resposta"]["parcelas_assumidas"];
