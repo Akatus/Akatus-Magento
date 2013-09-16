@@ -80,8 +80,13 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
     {
         $adminSession = Mage::getSingleton('admin/session', array('name' => 'adminhtml'));
         $isAdmin = $adminSession->isLoggedIn();
+        $state = $order->getState();
 
-        return $isAdmin && $order->getStatus() === Mage_Sales_Model_Order::STATE_COMPLETE;
+        if ($isAdmin && ($state === Mage_Sales_Model_Order::STATE_COMPLETE || $state === Mage_Sales_Model_Order::STATE_PROCESSING)) {
+            return true;
+        }
+
+        return false;
     }
 
     private function getEstornoURL($orderId)
