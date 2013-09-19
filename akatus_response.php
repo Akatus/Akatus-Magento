@@ -67,6 +67,7 @@ function getNewOrderState($statusAkatus, $order)
 
         case StatusTransacaoAkatus::CANCELADO:
             $statusList = array(
+                Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
                 Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW,
                 Mage_Sales_Model_Order::STATE_HOLDED
             );                
