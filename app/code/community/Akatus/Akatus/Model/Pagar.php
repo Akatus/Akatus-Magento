@@ -456,12 +456,16 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
            $address = Mage::getModel('sales/order_address')->load($billingId);              
         }
 		
-    	$customer_nome = $order->customer_firstname . " ".$order->customer_lastname;
-    
-    	if ($customer_nome == "") {
+        if (str_replace(' ', '', $order->customer_firstname) !== "") {
+            $customer_nome = $order->customer_firstname . " ".$order->customer_lastname;
+
+        } else if (str_replace(' ', '', $customer->getName()) !== "") {
     		$customer_nome = $customer->getName();
-    	}
-    	
+
+        } else {
+            $customer_nome = $_POST['billing']['firstname'] . " " . $_POST['billing']['lastname'];
+        }
+   	
     	$customer_email = $order->customer_email;
     	if ($customer_email=="") {
     		$customer_email = $customer->getEmail();
