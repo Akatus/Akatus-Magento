@@ -380,7 +380,6 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
     	$parcelamento       = $info->getCheckParcelamento();
     	$tefbandeira        = $info->getCheckTefbandeira();
     	$formapagamento     = $info->getCheckFormapagamento();
-    
         
     	#verifica se a forma de pagamento foi selecionada
     	if(empty($formapagamento)) {
@@ -689,8 +688,6 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 
 			} else if ($resposta == "Aguardando Pagamento" || $resposta == "Processando"){
 
-				$info = $this->getInfoInstance();
-				$formapagamento = $info->getCheckFormapagamento();
                 $url_base = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
 				
 				if ($formapagamento == "boleto") {
@@ -699,11 +696,9 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					$str = $data['resposta']['transacao']['value'];
 					$url_destino .= base64_encode($str).'.html';
 					
-					$order->setCheckBoletourl($url_destino);
+					$info->setCheckBoletourl($url_destino);
+                    $info->save();
 
-#                    $order->setStatus(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT);
-#                    $order->save();
-				
 					$transacaoId = $data["resposta"]["transacao"]["value"];
 					$this->SalvaIdTransacao($orderId, $transacaoId);
 					
@@ -719,9 +714,6 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					$str = $data['resposta']['transacao']['value'];
 					$url_destino .= base64_encode($str).'.html';
 					
-#                    $order->setStatus(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT);
-#                    $order->save();
-
 					$transacaoId = $data["resposta"]["transacao"]["value"];
 					$this->SalvaIdTransacao($orderId, $transacaoId);
 					
