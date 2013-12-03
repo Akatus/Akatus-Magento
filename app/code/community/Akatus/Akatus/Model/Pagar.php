@@ -621,6 +621,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                     <desconto>'.$transacao_descontoTotal.'</desconto>
                     <peso>'.$transacao_pesoTotal.'</peso> 
                     <referencia>'.$incrementId.'</referencia>				
+                    <fingerprint_akatus>'.$_POST['fingerprint_akatus'].'</fingerprint_akatus>				
+                    <fingerprint_partner_id>'.$_POST['fingerprint_partner_id'].'</fingerprint_partner_id>				
                 </transacao>';
                         
                         
