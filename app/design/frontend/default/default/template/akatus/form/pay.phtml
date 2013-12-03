@@ -562,7 +562,7 @@
         var formulario = document.getElementById('payment_form_akatus');
         var config = {
             <?php if (Mage::getModel('akatus/pagar')->getConfigData('modo') === 'SANDBOX') { echo "sandbox: true,"; } ?> 
-            publicToken: '<?php echo $this->getMethod()->getConfigData('public_key') ?>'
+            publicToken: '<?php echo $this->getMethod()->getConfigData('public_token') ?>'
         };
         Akatus.init(formulario, config);
     });

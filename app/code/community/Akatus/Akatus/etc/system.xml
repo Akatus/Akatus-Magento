@@ -46,10 +46,18 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </numero_maximo_parcelas>                        
+                        <public_token translate="label">
+                            <label>Public Token</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </public_token> 
                         <tokennip translate="label">
                             <label>Token NIP</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>6</sort_order>
+                            <sort_order>7</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -57,19 +65,11 @@
                         <api_key translate="label">
                             <label>Api Key</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>7</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </api_key> 
-                        <public_key translate="label">
-                            <label>Public Key</label>
-                            <frontend_type>text</frontend_type>
                             <sort_order>8</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                        </public_key> 
+                        </api_key> 
                         <email_gateway translate="label">
                             <label>Email</label>
                             <frontend_type>text</frontend_type>

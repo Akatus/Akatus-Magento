@@ -24,6 +24,7 @@ Antes de configurar o módulo, acesse o Gerenciador de Cache, clique em selecion
 * __Modo__ - Produção ou Sandbox (para a realização de testes)
 * __Título__ - Texto que será exibido para o cliente
 * __Número Máximo de Parcelas__ - O máximo de parcelas para cartão de crédito
+* __Public Token__ - Código gerado no painel da conta Akatus (menu Integração > Chaves de Segurança)
 * __Token NIP__ - Código gerado no painel da conta Akatus (menu Integração > Chaves de Segurança)
 * __API Key__ - Código gerado no painel da conta Akatus (menu Integração > Chaves de Segurança)
 * __E-mail__ - E-mail de cadastro da conta Akatus
