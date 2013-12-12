@@ -551,7 +551,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 
                 $xml .='<produto>
                             <codigo>'.$cod.'</codigo>
-                            <descricao>'.$item->getName().'</descricao>
+                            <descricao><![CDATA['.$item->getName().']]></descricao>
                             <quantidade>'.$item->getQtyToInvoice().'</quantidade>
                             <preco>'.$preco_item.'</preco>
                             <peso>'.$peso_item.'</peso>
@@ -614,6 +614,8 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
             $fingerprint_akatus = isset($_POST['fingerprint_akatus']) ? $_POST['fingerprint_akatus'] : '';
             $fingerprint_partner_id = isset($_POST['fingerprint_partner_id']) ? $_POST['fingerprint_partner_id'] : '';
 
+            $ipv4_address = filter_var($order->getRemoteIp(), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+
             $xml.='
                 <!-- Transacao -->
                 <transacao>
@@ -626,6 +628,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
                     <referencia>'.$incrementId.'</referencia>				
                     <fingerprint_akatus>'.$fingerprint_akatus.'</fingerprint_akatus>				
                     <fingerprint_partner_id>'.$fingerprint_partner_id.'</fingerprint_partner_id>				
+                    <ip>'. $ipv4_address .'</ip>
                 </transacao>';
                         
                         
@@ -707,7 +710,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					$transacaoId = $data["resposta"]["transacao"]["value"];
 					$this->SalvaIdTransacao($orderId, $transacaoId);
 					
-					$msg='Transação realizada com sucesso. Clique na url abaixo para imprimir seu boleto.<br/>';
+					$msg='Transação realizada com sucesso. Clique no botão abaixo para imprimir seu boleto.<br/>';
                     $msg.="<a href='".$url_destino."' target='_blank'><img src='" . $url_base ."skin/frontend/default/default/images/boleto.gif' /></a>";
 					
 					Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
@@ -722,7 +725,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
 					$transacaoId = $data["resposta"]["transacao"]["value"];
 					$this->SalvaIdTransacao($orderId, $transacaoId);
 					
-					$msg='Transação realizada com sucesso. Clique na url abaixo e você será redirecionado para seu banco.<br/>';
+					$msg='Transação realizada com sucesso. Clique no botão abaixo e você será redirecionado para seu banco.<br/>';
                     $msg.="<a href='".$url_destino."' target='_blank'><img src='" . $url_base ."/skin/frontend/default/default/images/tef.gif' /></a>";
 					
 					Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__($msg));
