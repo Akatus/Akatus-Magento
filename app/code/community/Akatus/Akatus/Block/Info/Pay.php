@@ -18,39 +18,93 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
 			echo ("<table>
                         <tbody>
                             <tr>
-                                <th>
-                                <strong>Forma de Pagamento:</strong>
-                                </th>
+                                <td>
+                                    <strong>Forma de Pagamento: </strong>Boleto Bancário
+                                </td>
                             </tr>
                             <tr>
-                                <td>Boleto Bancário</td>
-                            </tr>
-                            <tr>
-                                <th>
-                                <strong>Segunda Via</strong>
-                                </th>
-                            </tr>
-                            <tr>
-                                <td><a href = '{$info->getCheckBoletourl()}' target='_blank'>Imprimir</a></td>
+                                <td>
+                                    <strong>Segunda Via: </strong><a href = '{$info->getCheckBoletourl()}' target='_blank'>Imprimir</a><br>
+                                </td>
                             </tr>
                         </tbody>
                     </table>");
 
 		} elseif ($info->getCheckFormapagamento() == 'cartaodecredito') {
-			$checkBandCC = $info->getCheckCartaobandeira();
-			$cartaoLabel = str_replace("cc_", "", $info->getCheckCartaobandeira());
-			$array = array(
-				(Mage::helper('payment')->__('Bandeira do Cartão')) => ($cartao),
-				Mage::helper('payment')->__('Nome') => $info->getCheckNome(),
-				Mage::helper('payment')->__('Cpf') => $info->getCheckCpf(),
-				(Mage::helper('payment')->__('Numero do Cartão')) => $info->getCheckNumerocartao(),
-			);
 
-		} else {
+            switch($info->getCheckCartaobandeira()){
 
-			$array = array(
-				Mage::helper('payment')->__('Bandeira') => $info->getCheckTefbandeira()
-			);
+            case "cc_cartao_amex":
+                $cartao = "American Express";
+                break;
+            case "cc_cartao_elo":
+                $cartao = "Elo";
+                break;
+            case "cc_cartao_master":
+                $cartao = "Mastercard";
+                break;
+            case "cc_cartao_diners":
+                $cartao = "Diners Club";
+                break;
+            case "cc_cartao_visa":
+                $cartao = "Visa";
+                break;          
+            } 
+
+			echo ("<table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Cartão: </strong>{$cartao}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Nome: </strong>{$info->getCheckNome()}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>CPF: </strong>{$info->getCheckCpf()}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Número do Cartão: </strong>{$info->getCheckNumerocartao()}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Número do Parcelas: </strong>{$info->getCheckParcelamento()}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>");
+
+		} elseif ($info->getCheckFormapagamento() == 'tef') {
+
+            switch($info->getCheckTefbandeira()){
+
+            case "tef_itau":
+                $banco = "Itaú";
+                break;
+            case "tef_bradesco":
+                $banco = "Bradesco";
+                break;
+            case "tef_bb":
+                $banco = "Banco do Brasil";
+                break;
+            } 
+
+			echo ("<table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>TEF: </strong>{$banco}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>");
 		}
 
 
@@ -61,18 +115,17 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
             echo ("<table>
                         <tbody>
                             <tr>
-                                <th>
+                                <td>
                                     <strong>Estorno:</strong>
-                                </th>
+                                </td>
                             </tr>
                             <tr>
-                                <td><a href ='$estornoURL'>Solicitar estorno</a></td>
+                                <td><a href ='$estornoURL'>Solicitar estorno</a><br></td>
                             </tr>
                         </tbody>
                     </table>");
         }
 
-		$transport->addData($array);
 		return $transport;
 	}
    

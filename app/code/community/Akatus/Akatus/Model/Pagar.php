@@ -658,7 +658,7 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
             Mage::throwException("XML RECEBIDO:\n\n".$ret."\n\n\nXML Enviado:\n".$xml);
 		}
                 
-        Mage::Log("..:: ENVIADO ::..\n\n".$xml."\n\n ..:: RECEBIDO ::..\n\n".$ret);
+        Mage::Log("..:: ENVIADO ::..\n\n".$this->filter($xml)."\n\n ..:: RECEBIDO ::..\n\n".$ret);
 
 		$info = $this->getInfoInstance();
 		$formapagamento = $info->getCheckFormapagamento();
@@ -766,4 +766,23 @@ class Akatus_Akatus_Model_Pagar extends Mage_Payment_Model_Method_Abstract
             
         $info->setCheckNumerocartao($cardDigits);
     }
+
+    private function filter($string)
+    {                                                                                                                                                                                     
+        $patterns = array(
+            '/<numero>.*<\/numero>/',
+            '/<codigo_de_seguranca>.*<\/codigo_de_seguranca>/',
+            '/<expiracao>.*<\/expiracao>/'
+        );
+
+        $replacements = array(
+            '<numero>INFORMACAO_FILTRADA_POR_SEGURANCA</numero>',
+            '<codigo_de_seguranca>INFORMACAO_FILTRADA_POR_SEGURANCA</codigo_de_seguranca>',
+            '<expiracao>INFORMACAO_FILTRADA_POR_SEGURANCA</expiracao>'
+        );
+
+        return preg_replace($patterns, $replacements, $string);
+
+    }   
+
 }
