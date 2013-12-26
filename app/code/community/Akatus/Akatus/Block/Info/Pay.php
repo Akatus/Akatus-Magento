@@ -75,7 +75,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
                             </tr>
                             <tr>
                                 <td>
-                                    <strong>Número do Parcelas: </strong>{$info->getCheckParcelamento()}
+                                    <strong>Número de Parcelas: </strong>{$info->getCheckParcelamento()}
                                 </td>
                             </tr>
                         </tbody>
