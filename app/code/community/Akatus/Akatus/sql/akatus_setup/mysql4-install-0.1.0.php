@@ -15,8 +15,6 @@ $installer->run("CREATE TABLE IF NOT EXISTS `akatus_transacoes` ( `id` INT NULL 
                                                                   ) ENGINE = InnoDB");
 
 
-$installer->run($query);
-
 $query = "ALTER TABLE `".$prefix."sales_flat_order_payment`
 				 ADD `check_no` VARCHAR(20) NOT NULL,
 				 ADD `check_date` VARCHAR(20) NOT NULL,
