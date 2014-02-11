@@ -115,12 +115,7 @@ class Akatus_Akatus_Block_Info_Pay extends Mage_Payment_Block_Info
             echo ("<table>
                         <tbody>
                             <tr>
-                                <td>
-                                    <strong>Estorno:</strong>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><a href ='$estornoURL'>Solicitar estorno</a><br></td>
+                                <td><button onclick=this.disabled='disabled';window.location.href='$estornoURL'>Solicitar estorno</button></td>
                             </tr>
                         </tbody>
                     </table>");
